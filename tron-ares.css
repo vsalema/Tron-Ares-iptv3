@@ -1428,6 +1428,12 @@ body.theme-redblue .np-logo img {
     transform: translateX(-100%);
   }
 }
+/* Mode mobile paysage : on cache le loader-panel pour agrandir la liste */
+@media screen and (max-height: 520px) and (orientation: landscape) {
+  .loader-panel {
+    display: none !important;
+  }
+}
 
 
 .app-shell {
