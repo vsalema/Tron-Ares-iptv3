@@ -37,9 +37,13 @@
   </button>
 </div>
 <div class="search-row">
-  <input id="globalSearchInput" class="input search-input"
-         placeholder="Rechercher (toutes listes)…" />
+  <div class="search-wrapper">
+    <input id="globalSearchInput" class="input search-input"
+           placeholder="Rechercher (toutes listes)…" />
+    <button id="clearSearchBtn" class="clear-search-btn">✖</button>
+  </div>
 </div>
+
 <div class="lists-container">
   <div class="scroll-fade"></div>
   <div class="list active" id="channelList"></div>
