@@ -1144,6 +1144,21 @@ if (globalSearchInput) {
     scrollToActiveItem(); // pour garder l’élément actif centré si possible
   });
 }
+
+
+if (clearSearchBtn) {
+  clearSearchBtn.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    currentSearch = '';
+    globalSearchInput.value = '';
+
+    const wrapper = globalSearchInput.closest('.search-wrapper');
+    if (wrapper) wrapper.classList.remove('has-text');
+
+    renderLists();
+    scrollToActiveItem();
+  });
+}
 // --- Recherche globale avec bouton effacer ---
 if (globalSearchInput) {
   const wrapper = globalSearchInput.closest('.search-wrapper');
@@ -1161,21 +1176,6 @@ if (globalSearchInput) {
     scrollToActiveItem();
   });
 }
-
-if (clearSearchBtn) {
-  clearSearchBtn.addEventListener('click', (ev) => {
-    ev.stopPropagation();
-    currentSearch = '';
-    globalSearchInput.value = '';
-
-    const wrapper = globalSearchInput.closest('.search-wrapper');
-    if (wrapper) wrapper.classList.remove('has-text');
-
-    renderLists();
-    scrollToActiveItem();
-  });
-}
-
 // Sections repliables du loader-panel
 document.querySelectorAll('.loader-section .collapsible-label').forEach(label => {
   label.addEventListener('click', () => {
