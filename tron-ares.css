@@ -1412,3 +1412,11 @@ body.theme-redblue .np-logo img {
     margin: 0 !important;
   }
 }
+/* Barre de recherche globale dans la sidebar */
+.search-row {
+  padding: 0 10px 6px;
+}
+
+.search-input {
+  font-size: 11px;
+}
