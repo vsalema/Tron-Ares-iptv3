@@ -1292,12 +1292,9 @@ audioTrackBtn?.addEventListener('click', (ev) => {
   if (!isMovieContext()) return;
   buildAudioTrackMenu();
   const isOpen = audioTrackMenu.classList.toggle('open');
-  if (isOpen) subtitleTrackMenu.classList.remove('open');
-item.addEventListener('click', () => {
-  hlsInstance.audioTrack = idx;
-  activeAudioIndex = idx;        // <<< ajoute cette ligne
-  buildAudioTrackMenu();
-  closeAllTrackMenus();
+  if (isOpen) {
+    subtitleTrackMenu?.classList.remove('open');
+  }
 });
 
 subtitleTrackBtn?.addEventListener('click', (ev) => {
@@ -1305,13 +1302,16 @@ subtitleTrackBtn?.addEventListener('click', (ev) => {
   if (!isMovieContext()) return;
   buildSubtitleTrackMenu();
   const isOpen = subtitleTrackMenu.classList.toggle('open');
-  if (isOpen) audioTrackMenu.classList.remove('open');
+  if (isOpen) {
+    audioTrackMenu?.classList.remove('open');
+  }
 });
 
 // Fermer les menus si on clique ailleurs
 document.addEventListener('click', () => {
   closeAllTrackMenus();
 });
+
 
 
 // =====================================================
