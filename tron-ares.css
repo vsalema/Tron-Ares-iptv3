@@ -1420,24 +1420,12 @@ body.theme-redblue .np-logo img {
     bottom: 0;
     z-index: 20;
   }
-
- /* >>> Sidebar toujours visible + scrollable en paysage */
-  .sidebar {
-    position: relative;
-    width: 260px;          /* largeur colonne liste */
-    max-width: 45vw;       /* ~ la moitié de l’écran */
-    max-height: 100vh;
-    overflow-y: auto;
-    transform: translateX(0);  /* visible */
-    opacity: 1;
-    pointer-events: auto;
+.sidebar {
+    max-height: 50vh;
   }
 
-  /* Même si JS met "collapsed", on NE LA CACHE PAS dans ce mode */
   .sidebar.collapsed {
-    transform: translateX(0);
-    opacity: 1;
-    pointer-events: auto;
+    transform: translateX(-100%);
   }
 }
 
