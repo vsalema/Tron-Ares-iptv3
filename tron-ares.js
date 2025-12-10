@@ -98,8 +98,7 @@ const audioTrackBtn = document.getElementById('audioTrackBtn');
 const subtitleTrackBtn = document.getElementById('subtitleTrackBtn');
 const audioTrackMenu = document.getElementById('audioTrackMenu');
 const subtitleTrackMenu = document.getElementById('subtitleTrackMenu');
-const globalSearchInput = document.getElementById('globalSearchInput');
-const clearSearchBtn = document.getElementById('clearSearchBtn');
+
 
 // Masquer les contrôles pistes au démarrage
 if (npTracks) {
