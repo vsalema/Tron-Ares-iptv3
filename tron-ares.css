@@ -1362,14 +1362,14 @@ body.theme-redblue .np-logo img {
   margin: 12px;
 }
 
-/*@media (max-width: 900px) {
+@media (max-width: 900px) {
   .app-shell {
     max-width: 100% !important;
     width: 100%;
     margin: 0;
     border-radius: 0;
   }
-}*/
+}
 /* Mobile en mode paysage : sidebar jusqu'au haut du now-playing */
 @media screen and (max-width: 900px) and (orientation: landscape) {
   .sidebar {
