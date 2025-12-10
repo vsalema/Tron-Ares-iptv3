@@ -1420,3 +1420,46 @@ body.theme-redblue .np-logo img {
 .search-input {
   font-size: 11px;
 }
+/* Conteneur pour placer le bouton dans l’input */
+.search-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+/* Le bouton ✖ */
+.clear-search-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 229, 255, 0.45);
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--tron-text);
+  font-size: 11px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  opacity: 0.5;
+  transition: 0.18s ease-out;
+  visibility: hidden; /* affiché uniquement quand il y a du texte */
+}
+
+.clear-search-btn:hover {
+  opacity: 1;
+  border-color: var(--tron-accent);
+  color: var(--tron-accent);
+  box-shadow: 0 0 6px var(--tron-accent-soft);
+}
+
+/* Active si la recherche contient du texte */
+.search-wrapper.has-text .clear-search-btn {
+  visibility: visible;
+  opacity: 0.85;
+}
