@@ -1432,16 +1432,36 @@ body.theme-redblue .np-logo img {
     max-height: 50vh;
   }
 
+ @media screen and (max-height: 520px) and (orientation: landscape) {
+
+  /* La sidebar prend tout l’espace dispo
+     jusqu’au haut de la bottom-bar (~90px) */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 90px;   /* hauteur réservée pour le now-playing */
+    height: auto;
+    max-height: none;   /* très important : on enlève la limite 50vh */
+    max-width: 80vw;
+    z-index: 50;
+  }
+
   .sidebar.collapsed {
     transform: translateX(-100%);
   }
-}
-/* Mode mobile paysage : on cache le loader-panel pour agrandir la liste */
-@media screen and (max-height: 520px) and (orientation: landscape) {
+
+  /* On cache le loader-panel pour gagner de la place */
   .loader-panel {
     display: none !important;
   }
+
+  /* On laisse la liste prendre toute la hauteur restante dans la sidebar */
+  .lists-container {
+    height: 100%;
+  }
 }
+
 
 
 .app-shell {
