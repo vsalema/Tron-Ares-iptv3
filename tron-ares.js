@@ -29,6 +29,9 @@ let dashInstance = null;
 
 let currentEntry = null;
 let externalFallbackTried = false;
+// --- ÉTAT PISTES (pour l'aspect "actif" des boutons NP) ---
+let activeAudioIndex = -1;
+let activeSubtitleIndex = -1;
 
 // --------- DOM REFS ---------
 const videoEl = document.getElementById('videoEl');
@@ -330,11 +333,6 @@ function updateNowPlaying(entry, modeLabel) {
 // PISTES AUDIO / SOUS-TITRES (HLS) - CHANNELLIST SEULEMENT
 // =====================================================
 
-function isMovieContext() {
-  // On limite les contrôles pistes aux films dans channelList
-  return currentListType === 'channels';
-}
-
 function closeAllTrackMenus() {
   audioTrackMenu?.classList.remove('open');
   subtitleTrackMenu?.classList.remove('open');
@@ -403,6 +401,9 @@ function buildSubtitleTrackMenu() {
     }
   }
 
+  // Mémorise pour refreshTrackMenus()
+  activeSubtitleIndex = activeIndex;
+
   const header = document.createElement('div');
   header.className = 'np-track-menu-header';
   header.textContent = 'Sous-titres';
@@ -437,6 +438,7 @@ function buildSubtitleTrackMenu() {
         }
       });
     }
+    activeSubtitleIndex = -1;
     buildSubtitleTrackMenu();
     closeAllTrackMenus();
   });
@@ -450,7 +452,7 @@ function buildSubtitleTrackMenu() {
 
     const label = document.createElement('div');
     label.className = 'np-track-item-label';
-    label.textContent = t.name || t.label || t.lang || ('Sous-titres ' + (idx + 1));
+    label.textContent = t.name || t.label || t.lang || t.language || ('Sous-titres ' + (idx + 1));
 
     const meta = document.createElement('div');
     meta.className = 'np-track-item-meta';
@@ -462,16 +464,14 @@ function buildSubtitleTrackMenu() {
       if (useHls && hlsInstance) {
         hlsInstance.subtitleTrack = idx;
       } else {
-        Array.from(videoEl.textTracks || []).forEach((track, i) => {
+        const vt = Array.from(videoEl.textTracks || []);
+        vt.forEach((track, i) => {
           if (track.kind === 'subtitles' || track.kind === 'captions') {
             track.mode = (i === idx ? 'showing' : 'disabled');
           }
-        if (tracks.length > 1) {
-  subtitleTrackMenu.classList.add("open");
-}
-
-});
+        });
       }
+      activeSubtitleIndex = idx;
       buildSubtitleTrackMenu();
       closeAllTrackMenus();
     });
@@ -479,6 +479,7 @@ function buildSubtitleTrackMenu() {
     subtitleTrackMenu.appendChild(item);
   });
 }
+
 
 
 
@@ -500,12 +501,29 @@ function updateTrackControlsVisibility() {
 
 
 function refreshTrackMenus() {
+  // reconstruit les menus
   buildAudioTrackMenu();
   buildSubtitleTrackMenu();
   updateTrackControlsVisibility();
-  audioTrackBtn.classList.toggle('active', activeAudioIndex !== -1);
-  subtitleTrackBtn.classList.toggle('active', activeSubtitleIndex !== -1);
+
+  // recalcule l'index audio actif à partir de Hls
+  if (hlsInstance && Array.isArray(hlsInstance.audioTracks) && hlsInstance.audioTracks.length) {
+    activeAudioIndex = hlsInstance.audioTrack ?? -1;
+  } else {
+    activeAudioIndex = -1;
+  }
+
+  // Pour les sous-titres, activeSubtitleIndex est mis à jour dans buildSubtitleTrackMenu()
+
+  // On active/désactive le style des boutons
+  if (audioTrackBtn) {
+    audioTrackBtn.classList.toggle('active', activeAudioIndex !== -1);
+  }
+  if (subtitleTrackBtn) {
+    subtitleTrackBtn.classList.toggle('active', activeSubtitleIndex !== -1);
+  }
 }
+
 
 // =====================================================
 // PLAYER LOGIC
@@ -1267,10 +1285,7 @@ videoEl.addEventListener('timeupdate', () => {
   resumePositions[key] = t;
   localStorage.setItem('tronAresResume', JSON.stringify(resumePositions));
 });
-function closeAllTrackMenus() {
-  audioTrackMenu?.classList.remove('open');
-  subtitleTrackMenu?.classList.remove('open');
-}
+
 
 audioTrackBtn?.addEventListener('click', (ev) => {
   ev.stopPropagation();
@@ -1278,6 +1293,11 @@ audioTrackBtn?.addEventListener('click', (ev) => {
   buildAudioTrackMenu();
   const isOpen = audioTrackMenu.classList.toggle('open');
   if (isOpen) subtitleTrackMenu.classList.remove('open');
+item.addEventListener('click', () => {
+  hlsInstance.audioTrack = idx;
+  activeAudioIndex = idx;        // <<< ajoute cette ligne
+  buildAudioTrackMenu();
+  closeAllTrackMenus();
 });
 
 subtitleTrackBtn?.addEventListener('click', (ev) => {
