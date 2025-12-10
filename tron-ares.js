@@ -1159,23 +1159,7 @@ if (clearSearchBtn) {
     scrollToActiveItem();
   });
 }
-// --- Recherche globale avec bouton effacer ---
-if (globalSearchInput) {
-  const wrapper = globalSearchInput.closest('.search-wrapper');
 
-  globalSearchInput.addEventListener('input', () => {
-    currentSearch = globalSearchInput.value.trim().toLowerCase();
-
-    // Afficher/masquer le bouton ✖
-    if (wrapper) {
-      if (globalSearchInput.value.length > 0) wrapper.classList.add('has-text');
-      else wrapper.classList.remove('has-text');
-    }
-
-    renderLists();
-    scrollToActiveItem();
-  });
-}
 // Sections repliables du loader-panel
 document.querySelectorAll('.loader-section .collapsible-label').forEach(label => {
   label.addEventListener('click', () => {
