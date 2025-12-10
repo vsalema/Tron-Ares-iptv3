@@ -1357,3 +1357,16 @@ body.theme-redblue .np-logo img {
     max-width: none;
   }
 }
+.app-shell {
+  max-width: 1400px;
+  margin: 12px;
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    max-width: 100% !important;
+    width: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+}
