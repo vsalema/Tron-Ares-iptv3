@@ -98,6 +98,8 @@ const audioTrackBtn = document.getElementById('audioTrackBtn');
 const subtitleTrackBtn = document.getElementById('subtitleTrackBtn');
 const audioTrackMenu = document.getElementById('audioTrackMenu');
 const subtitleTrackMenu = document.getElementById('subtitleTrackMenu');
+const globalSearchInput = document.getElementById('globalSearchInput');
+const clearSearchBtn = document.getElementById('clearSearchBtn');
 
 // Masquer les contrôles pistes au démarrage
 if (npTracks) {
@@ -1140,6 +1142,37 @@ if (globalSearchInput) {
     currentSearch = globalSearchInput.value.trim().toLowerCase();
     renderLists();
     scrollToActiveItem(); // pour garder l’élément actif centré si possible
+  });
+}
+// --- Recherche globale avec bouton effacer ---
+if (globalSearchInput) {
+  const wrapper = globalSearchInput.closest('.search-wrapper');
+
+  globalSearchInput.addEventListener('input', () => {
+    currentSearch = globalSearchInput.value.trim().toLowerCase();
+
+    // Afficher/masquer le bouton ✖
+    if (wrapper) {
+      if (globalSearchInput.value.length > 0) wrapper.classList.add('has-text');
+      else wrapper.classList.remove('has-text');
+    }
+
+    renderLists();
+    scrollToActiveItem();
+  });
+}
+
+if (clearSearchBtn) {
+  clearSearchBtn.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    currentSearch = '';
+    globalSearchInput.value = '';
+
+    const wrapper = globalSearchInput.closest('.search-wrapper');
+    if (wrapper) wrapper.classList.remove('has-text');
+
+    renderLists();
+    scrollToActiveItem();
   });
 }
 
