@@ -1371,35 +1371,67 @@ body.theme-redblue .np-logo img {
   }
 }
 
+/* =========================================
+   FIX MOBILE PAYSAGE (S24 & co)
+   - On se base sur la HAUTEUR de l'écran,
+     pas la largeur.
+   ========================================= */
+@media screen and (max-height: 520px) and (orientation: landscape) {
 
-/* --- Fix mobile : permettre le scroll & éviter que le footer soit coupé --- */
-@media (max-width: 900px) and (orientation: landscape) {
+  /* La page peut scroller un peu si besoin
+     et on évite le 100% bloqué */
   html,
   body {
     height: auto;
     min-height: 100vh;
-    overflow-y: auto;          /* on réactive le scroll vertical */
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 
+  /* L'app n'essaie plus de forcer un 100vh rigide */
   .app-shell {
-    height: auto;              /* plus de 100vh fixe */
-    min-height: 100vh;         /* au moins la hauteur écran, mais extensible */
+    height: auto;
+    min-height: 100vh;
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
   }
 
   .main {
-    flex: 1;
-    min-height: 0;             /* évite que le flex "bloque" */
+    flex: 1 0 auto;
+    padding: 4px 8px;
   }
 
+  .top-bar {
+    margin-bottom: 4px;
+  }
+
+  /* Player un peu moins haut pour laisser la place au footer */
   .player-shell {
-    flex: 0 0 auto;            /* ne force pas à tout prendre */
-    aspect-ratio: 16 / 9;      /* déjà chez toi, on garde */
+    flex: 0 0 auto;
+    height: 52vh;   /* tu peux ajuster 50–60vh selon ton goût */
+    min-height: 0;
   }
 
+  /* Footer collé en bas de l’écran (toujours visible) */
   .bottom-bar {
-    flex-shrink: 0;            /* le footer ne se fait pas compresser */
+    margin-top: 4px;
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+  }
+
+  /* Sidebar : on évite qu’elle prenne toute la hauteur */
+  .sidebar {
+    max-height: 50vh;
+  }
+
+  .sidebar.collapsed {
+    transform: translateX(-100%);
   }
 }
+
+
 .app-shell {
   max-width: 100%;
 }
