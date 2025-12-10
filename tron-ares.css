@@ -36,7 +36,6 @@ body.theme-redblue {
   box-sizing: border-box;
 }
 
-
 html,
 body {
   margin: 0;
@@ -45,11 +44,10 @@ body {
   overflow: hidden; /* la fenêtre ne scrolle plus, seulement les listes internes */
 }
 
+/* L'app occupe toute la hauteur de l’écran */
 .app-shell {
-  height: 100vh; /* l'app occupe toute la hauteur de l’écran */
+  height: 100vh;
 }
-
-
 
 body {
   margin: 0;
@@ -145,6 +143,8 @@ body {
   color: var(--tron-text);
 }
 
+/* Tabs */
+
 .tabs {
   display: flex;
   padding: 6px 10px 4px;
@@ -216,6 +216,8 @@ body {
   z-index: 1;
 }
 
+/* Channel items */
+
 .channel-item {
   position: relative;
   display: flex;
@@ -257,6 +259,7 @@ body {
   box-shadow: var(--shadow-neon);
   font-size: 15px;
   color: var(--tron-text);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
 }
 
 .channel-logo img {
@@ -266,31 +269,14 @@ body {
   display: block;
 }
 
-.channel-logo {
-  width: 60px;
-  height: 33px;
-  border-radius: 999px;
-  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.9));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  flex-shrink: 0;
-  border: 1px solid rgba(0, 229, 255, 0.55);
-  box-shadow: var(--shadow-neon);
-  font-size: 15px;
-  color: var(--tron-text);
-  /* <<< AJOUTE ÇA */
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
-}
-
 /* Zoom logo seulement dans la liste principale channels */
 #channelList .channel-item:hover .channel-logo {
-  transform: scale(2.12);
+  transform: scale(2.12) translateX(18px);
+  transform-origin: left center;
   box-shadow: var(--shadow-neon-amber);
   border-color: var(--tron-accent);
+  z-index: 5;
 }
-
 
 .channel-meta {
   flex: 1;
@@ -371,6 +357,8 @@ body {
   text-shadow: 0 0 8px rgba(255, 145, 0, 0.8);
 }
 
+/* Loader panel */
+
 .loader-panel {
   border-top: 1px solid rgba(0, 229, 255, 0.18);
   padding: 8px 10px 9px;
@@ -402,6 +390,8 @@ body {
   gap: 4px;
   align-items: center;
 }
+
+/* Inputs & buttons */
 
 .input {
   flex: 1;
@@ -1021,36 +1011,29 @@ video {
     height: 130px;
   }
 }
-.top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative; /* important pour positionner le banner */
-}
 
-/* Conteneur du banner, centré au milieu de la top-bar */
+/* Variante bannière ; si tu veux vraiment cette version là */
 .top-bar-banner {
   position: absolute;
   left: 5%;
   top: 50%;
   transform: translate(-50%, -50%);
-  pointer-events: none;   /* pour ne pas bloquer les clics sur les boutons derrière au cas où */
-  z-index: 0;             /* ou 1 si tu veux qu'il passe devant */
+  pointer-events: none;
+  z-index: 0;
 }
 
-/* Ton banner avec la hauteur que TU as choisie */
 .banner-img {
-  height: 78px;         /* ta valeur */
+  height: 78px;
   width: auto;
   filter: drop-shadow(0 0 8px var(--tron-border));
   transition: 0.25s ease-out;
 }
 
-/* petit effet au survol, si tu veux le rendre cliquable enlève pointer-events:none */
 .banner-img:hover {
   transform: scale(1.03);
   filter: drop-shadow(0 0 16px var(--tron-accent));
 }
+
 @media (max-width: 540px) {
   .banner-img {
     height: 52px;
@@ -1077,6 +1060,8 @@ video {
   justify-content: space-between;
   cursor: pointer;
   user-select: none;
+  position: relative;
+  padding-right: 18px;
 }
 
 .loader-toggle-icon {
@@ -1102,15 +1087,8 @@ video {
   transform: rotate(90deg);
   opacity: 1;
 }
-/* --- Icône lumineuse TRON pour les sections ouvertes --- */
 
-/* Positionne l’icône à droite du titre */
-.collapsible-label {
-  position: relative;
-  padding-right: 18px;
-}
-
-/* Le petit cercle lumineux */
+/* Icône lumineuse TRON pour les sections ouvertes */
 .collapsible-label::after {
   content: "";
   position: absolute;
@@ -1120,17 +1098,17 @@ video {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: rgba(0, 229, 255, 0.25); /* discret quand fermé */
+  background: rgba(0, 229, 255, 0.25);
   box-shadow: 0 0 4px rgba(0, 229, 255, 0.4);
   transition: 0.25s ease-out;
 }
 
-/* Mode ouvert = halo Tron plus puissant */
 .loader-section.open .collapsible-label::after {
   background: rgba(255, 68, 0, 0.9);
   box-shadow: 0 0 10px rgba(255, 68, 0, 0.9), 0 0 18px rgba(0, 212, 255, 0.9);
   transform: translateY(-50%) scale(1.25);
 }
+
 /* Masquer le banner TRON en mode portrait mobile */
 @media screen and (max-width: 600px) and (orientation: portrait) {
   .top-bar-banner,
@@ -1142,21 +1120,21 @@ video {
 /* Conteneur des onglets (aside) */
 .tabs {
   display: flex;
-  flex-wrap: wrap;          /* permet le retour à la ligne */
-  gap: 6px;                 /* espace entre les boutons */
+  flex-wrap: wrap;
+  gap: 6px;
   justify-content: center;
   margin-bottom: 8px;
 }
 
 /* Boutons d'onglets */
 .tabs .tab-btn {
-  flex: 1 1 calc(50% - 6px); /* 2 boutons par ligne */
-  min-width: 0;              /* évite les débordements */
+  flex: 1 1 calc(50% - 6px);
+  min-width: 0;
   text-align: center;
   padding: 6px 4px;
-  font-size: 11px;           /* un peu plus compact */
+  font-size: 11px;
   line-height: 1.2;
-  white-space: nowrap;       /* si tu veux éviter les retours à la ligne interne */
+  white-space: nowrap;
 }
 
 /* Optionnel : sur très petit écran, 1 bouton par ligne */
@@ -1165,6 +1143,7 @@ video {
     flex: 1 1 100%;
   }
 }
+
 /* Effet TRON autour des logos */
 .channel-logo img,
 .np-logo img {
@@ -1180,6 +1159,7 @@ video {
     drop-shadow(0 0 10px var(--tron-accent))
     drop-shadow(0 0 18px var(--tron-accent-soft));
 }
+
 /* Animation Tron pulsée */
 @keyframes tronLogoPulse {
   0% {
@@ -1203,6 +1183,7 @@ video {
 .np-logo img {
   animation: tronLogoPulse 3.4s infinite ease-in-out;
 }
+
 body.theme-redblue .channel-logo img,
 body.theme-redblue .np-logo img {
   animation: tronLogoPulseRB 3.4s infinite ease-in-out;
@@ -1225,14 +1206,7 @@ body.theme-redblue .np-logo img {
       drop-shadow(0 0 14px rgba(41,121,255,0.5));
   }
 }
-/* Zoom spécial films : scale 2.12 + décalage vers la droite */
-#channelList .channel-item:hover .channel-logo {
-  transform: scale(2.12) translateX(18px); /* <<< zoom + pousser à droite */
-  transform-origin: left center;           /* le zoom part du côté gauche */
-  box-shadow: var(--shadow-neon-amber);
-  border-color: var(--tron-accent);
-  z-index: 5;                              /* reste au-dessus */
-}
+
 /* Bloc tracks dans le now-playing */
 .np-tracks {
   display: flex;
@@ -1254,20 +1228,16 @@ body.theme-redblue .np-logo img {
   padding: 0;
 }
 
-/* Menu déroulant Tron pour les pistes */
-/* =========================
-   Menu pistes (audio / sous-titres)
-   ========================= */
+/* Menu pistes (audio / sous-titres) */
 
 .np-track-menu {
-  position: fixed;                 /* fixé par rapport à la fenêtre */
+  position: fixed;
   right: 395px;
-  bottom: 110px;                   /* au-dessus de la bottom-bar */
+  bottom: 110px;
   min-width: 220px;
   max-width: 260px;
   max-height: 260px;
   overflow-y: auto;
-
   padding: 8px 10px;
   border-radius: 14px;
   border: 1px solid rgba(0, 229, 255, 0.6);
@@ -1278,10 +1248,8 @@ body.theme-redblue .np-logo img {
   box-shadow:
     0 0 18px rgba(0, 229, 255, 0.45),
     0 0 26px rgba(255, 145, 0, 0.35);
-
   font-size: 11px;
-  z-index: 60;                     /* passe devant player + now-playing */
-
+  z-index: 60;
   opacity: 0;
   transform: translateY(10px);
   pointer-events: none;
@@ -1289,14 +1257,12 @@ body.theme-redblue .np-logo img {
               transform 0.18s ease-out;
 }
 
-/* Quand le menu est ouvert */
 .np-track-menu.open {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
 }
 
-/* Items dans le menu */
 .np-track-menu-header {
   font-size: 10px;
   text-transform: uppercase;
@@ -1342,6 +1308,7 @@ body.theme-redblue .np-logo img {
   font-size: 9px;
   color: var(--tron-muted);
 }
+
 .np-track-btn.active {
   border-color: var(--tron-accent);
   color: var(--tron-accent-soft);
@@ -1353,41 +1320,26 @@ body.theme-redblue .np-logo img {
   .np-track-menu {
     left: 10px;
     right: 10px;
-    bottom: 90px;       /* un peu plus haut, pour dégager les boutons */
+    bottom: 90px;
     max-width: none;
   }
 }
-.app-shell {
-  max-width: 1400px;
-  margin: 12px;
-}
 
-@media (max-width: 900px) {
-  .app-shell {
-    max-width: 100% !important;
-    width: 100%;
-    margin: 0;
-    border-radius: 0;
-  }
-}
 /* Mobile en mode paysage : sidebar jusqu'au haut du now-playing */
 @media screen and (max-width: 900px) and (orientation: landscape) {
   .sidebar {
     top: 0;
-    bottom: 90px;   /* ≈ hauteur de la bottom-bar (now-playing) */
-    height: auto;   /* laisse le navigateur calculer la hauteur */
+    bottom: 90px;
+    height: auto;
   }
 }
 
 /* =========================================
    FIX MOBILE PAYSAGE (S24 & co)
-   - On se base sur la HAUTEUR de l'écran,
-     pas la largeur.
+   On se base sur la HAUTEUR de l'écran
    ========================================= */
 @media screen and (max-height: 520px) and (orientation: landscape) {
 
-  /* La page peut scroller un peu si besoin
-     et on évite le 100% bloqué */
   html,
   body {
     height: auto;
@@ -1396,7 +1348,6 @@ body.theme-redblue .np-logo img {
     overflow-x: hidden;
   }
 
-  /* L'app n'essaie plus de forcer un 100vh rigide */
   .app-shell {
     height: auto;
     min-height: 100vh;
@@ -1414,35 +1365,26 @@ body.theme-redblue .np-logo img {
     margin-bottom: 4px;
   }
 
-  /* Player un peu moins haut pour laisser la place au footer */
   .player-shell {
     flex: 0 0 auto;
-    height: 52vh;   /* tu peux ajuster 50–60vh selon ton goût */
+    height: 52vh;
     min-height: 0;
   }
 
-  /* Footer collé en bas de l’écran (toujours visible) */
   .bottom-bar {
     margin-top: 4px;
     position: sticky;
     bottom: 0;
     z-index: 20;
   }
-.sidebar {
-    max-height: 50vh;
-  }
 
- @media screen and (max-height: 520px) and (orientation: landscape) {
-
-  /* La sidebar prend tout l’espace dispo
-     jusqu’au haut de la bottom-bar (~90px) */
   .sidebar {
     position: fixed;
     left: 0;
     top: 0;
-    bottom: 90px;   /* hauteur réservée pour le now-playing */
+    bottom: 90px;
     height: auto;
-    max-height: none;   /* très important : on enlève la limite 50vh */
+    max-height: none;
     max-width: 80vw;
     z-index: 50;
   }
@@ -1451,29 +1393,22 @@ body.theme-redblue .np-logo img {
     transform: translateX(-100%);
   }
 
-  /* On cache le loader-panel pour gagner de la place */
   .loader-panel {
     display: none !important;
   }
 
-  /* On laisse la liste prendre toute la hauteur restante dans la sidebar */
   .lists-container {
     height: 100%;
   }
 }
 
-
-
-.app-shell {
-  max-width: 100%;
-}
 /* FORCE APP-SHELL FULL WIDTH ON DESKTOP */
 @media (min-width: 1025px) {
-    #appShell,
-    .app-shell {
-        width: 100vw !important;
-        max-width: 100vw !important;
-        height: 100vh !important;
-        margin: 0 !important;
-    }
+  #appShell,
+  .app-shell {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+  }
 }
