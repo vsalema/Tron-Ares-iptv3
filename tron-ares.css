@@ -1370,6 +1370,14 @@ body.theme-redblue .np-logo img {
     border-radius: 0;
   }
 }
+/* Mobile en mode paysage : sidebar jusqu'au haut du now-playing */
+@media screen and (max-width: 900px) and (orientation: landscape) {
+  .sidebar {
+    top: 0;
+    bottom: 90px;   /* ≈ hauteur de la bottom-bar (now-playing) */
+    height: auto;   /* laisse le navigateur calculer la hauteur */
+  }
+}
 
 /* =========================================
    FIX MOBILE PAYSAGE (S24 & co)
