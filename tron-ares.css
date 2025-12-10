@@ -1370,31 +1370,3 @@ body.theme-redblue .np-logo img {
     border-radius: 0;
   }
 }
-/* --- Fix mobile : permettre le scroll & éviter que le footer soit coupé --- */
-@media (max-width: 900px) {
-  html,
-  body {
-    height: auto;
-    min-height: 100vh;
-    overflow-y: auto;          /* on réactive le scroll vertical */
-  }
-
-  .app-shell {
-    height: auto;              /* plus de 100vh fixe */
-    min-height: 100vh;         /* au moins la hauteur écran, mais extensible */
-  }
-
-  .main {
-    flex: 1;
-    min-height: 0;             /* évite que le flex "bloque" */
-  }
-
-  .player-shell {
-    flex: 0 0 auto;            /* ne force pas à tout prendre */
-    aspect-ratio: 16 / 9;      /* déjà chez toi, on garde */
-  }
-
-  .bottom-bar {
-    flex-shrink: 0;            /* le footer ne se fait pas compresser */
-  }
-}
