@@ -1370,3 +1370,39 @@ body.theme-redblue .np-logo img {
     border-radius: 0;
   }
 }
+/* --- Fix S24 / mobile paysage : footer visible, scroll possible --- */
+@media (max-width: 900px) and (orientation: landscape) {
+  html,
+  body {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;          /* scroll global autorisé seulement en paysage */
+  }
+
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .main {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .player-shell {
+    flex: 0 0 auto;
+    aspect-ratio: 16 / 9;
+  }
+
+  .bottom-bar {
+    flex-shrink: 0;
+  }
+}
+.app-shell {
+  max-width: 100%;
+}
+@media (max-width: 1200px) {
+  .app-shell {
+    max-width: 100%;
+  }
+}
