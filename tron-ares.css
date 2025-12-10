@@ -1421,13 +1421,23 @@ body.theme-redblue .np-logo img {
     z-index: 20;
   }
 
-  /* Sidebar : on évite qu’elle prenne toute la hauteur */
+ /* >>> Sidebar toujours visible + scrollable en paysage */
   .sidebar {
-    max-height: 50vh;
+    position: relative;
+    width: 260px;          /* largeur colonne liste */
+    max-width: 45vw;       /* ~ la moitié de l’écran */
+    max-height: 100vh;
+    overflow-y: auto;
+    transform: translateX(0);  /* visible */
+    opacity: 1;
+    pointer-events: auto;
   }
 
+  /* Même si JS met "collapsed", on NE LA CACHE PAS dans ce mode */
   .sidebar.collapsed {
-    transform: translateX(-100%);
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
   }
 }
 
