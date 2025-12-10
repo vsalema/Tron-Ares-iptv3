@@ -11,6 +11,17 @@ try {
 } catch {
   resumePositions = {};
 }
+// --- RECHERCHE GLOBALE ---
+let currentSearch = '';
+
+function matchesSearch(entry) {
+  if (!currentSearch) return true;
+  const q = currentSearch.toLowerCase();
+  return (
+    (entry.name && entry.name.toLowerCase().includes(q)) ||
+    (entry.group && entry.group.toLowerCase().includes(q))
+  );
+}
 
 // --------- DATA MODEL ---------
 const channels = [];      // Liste M3U principale
@@ -158,26 +169,32 @@ function renderLists() {
 
 function renderChannelFrList() {
   channelFrListEl.innerHTML = '';
-  frChannels.forEach((ch, idx) => {
-    const el = createChannelElement(ch, idx, 'fr');
-    channelFrListEl.appendChild(el);
-  });
+  frChannels
+    .filter(matchesSearch)
+    .forEach((ch, idx) => {
+      const el = createChannelElement(ch, idx, 'fr');
+      channelFrListEl.appendChild(el);
+    });
 }
 
 function renderChannelList() {
   channelListEl.innerHTML = '';
-  channels.forEach((ch, idx) => {
-    const el = createChannelElement(ch, idx, 'channels');
-    channelListEl.appendChild(el);
-  });
+  channels
+    .filter(matchesSearch)
+    .forEach((ch, idx) => {
+      const el = createChannelElement(ch, idx, 'channels');
+      channelListEl.appendChild(el);
+    });
 }
 
 function renderIframeList() {
   iframeListEl.innerHTML = '';
-  iframeItems.forEach((item, idx) => {
-    const el = createChannelElement(item, idx, 'iframe');
-    iframeListEl.appendChild(el);
-  });
+  iframeItems
+    .filter(matchesSearch)
+    .forEach((item, idx) => {
+      const el = createChannelElement(item, idx, 'iframe');
+      iframeListEl.appendChild(el);
+    });
 }
 
 function renderFavoritesList() {
@@ -187,7 +204,7 @@ function renderFavoritesList() {
     ...channels.filter(c => c.isFavorite),
     ...frChannels.filter(c => c.isFavorite),
     ...iframeItems.filter(i => i.isFavorite)
-  ];
+  ].filter(matchesSearch);
 
   favs.forEach((entry, idx) => {
     const el = createChannelElement(
@@ -298,6 +315,7 @@ function createChannelElement(entry, index, sourceType) {
 
   return li;
 }
+const globalSearchInput = document.getElementById('globalSearchInput');
 
 // =====================================================
 // NOW PLAYING BAR
@@ -1116,6 +1134,14 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     updateTrackControlsVisibility();
   });
 });
+// Recherche globale (toutes listes)
+if (globalSearchInput) {
+  globalSearchInput.addEventListener('input', () => {
+    currentSearch = globalSearchInput.value.trim().toLowerCase();
+    renderLists();
+    scrollToActiveItem(); // pour garder l’élément actif centré si possible
+  });
+}
 
 // Sections repliables du loader-panel
 document.querySelectorAll('.loader-section .collapsible-label').forEach(label => {
