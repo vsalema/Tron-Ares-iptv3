@@ -675,7 +675,9 @@ function playUrl(entry) {
       radioPlayBtn.textContent = '▶';
     }
   }
-
+if (typeof miniRadioPlayer !== 'undefined' && miniRadioPlayer) {
+  miniRadioPlayer.classList.remove('playing');
+}
   currentEntry = entry;
   externalFallbackTried = false;
 
