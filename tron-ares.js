@@ -1503,11 +1503,42 @@ document.addEventListener('click', () => {
 // =====================================================
 // CHARGEMENT AUTOMATIQUE DES PLAYLISTS PRINCIPALES
 // =====================================================
+// =====================================================
+// CHARGEMENT AUTOMATIQUE DES PLAYLISTS PRINCIPALES
+// =====================================================
 
 (async function loadMainPlaylists() {
+  // 1) Charger d'abord la playlist "films" dans channels
   await loadFromUrl("https://vsalema.github.io/tvpt4/css/playlist_par_genre.m3u");
+
+  // 2) Charger ensuite la playlist FR
   await loadFrM3u("https://vsalema.github.io/tvpt4/css/playlist-tvf-r.m3u");
+
+  // 3) Forcer la FR comme liste active + première chaîne FR lue
+  if (frChannels.length > 0) {
+    // état interne
+    currentListType = 'fr';
+    currentFrIndex = 0;
+
+    // onglets : activer "fr", désactiver les autres
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('active');
+      if (b.dataset.tab === 'fr') {
+        b.classList.add('active');
+      }
+    });
+
+    // listes : activer la liste FR
+    document.querySelectorAll('.list').forEach(l => l.classList.remove('active'));
+    channelFrListEl.classList.add('active');
+
+    // re-render complet + lecture 1ère chaîne FR
+    renderLists();
+    playFrChannel(0);
+  }
 })();
+
+
 // === MINI AUDIO PLAYER R.ALFA ===
 
 const miniRadio = document.getElementById("miniRadioPlayer");
