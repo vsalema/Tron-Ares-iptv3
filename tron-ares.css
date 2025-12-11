@@ -1815,3 +1815,129 @@ body.theme-redblue .np-logo img {
   50%  { box-shadow: 0 0 14px rgba(255,145,0,0.7); }
   100% { box-shadow: 0 0 8px rgba(0,229,255,0.35); }
 }
+/* === MINI RADIO PLAYER R.ALFA === */
+
+.mini-radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  margin: 6px 8px 2px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  background: radial-gradient(circle at left, rgba(0, 229, 255, 0.15), rgba(0, 0, 0, 0.9));
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+  font-size: 11px;
+}
+
+.mini-radio-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: contain;
+  border: 1px solid rgba(255, 145, 0, 0.7);
+  box-shadow:
+    0 0 8px rgba(255, 145, 0, 0.7),
+    0 0 14px rgba(0, 229, 255, 0.6);
+}
+
+.mini-radio-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mini-radio-title {
+  font-weight: 600;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-radio-rds {
+  font-size: 10px;
+  color: var(--tron-muted);
+}
+
+/* Bouton play/pause radio */
+.mini-radio-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 229, 255, 0.6);
+  background: rgba(0, 0, 0, 0.8);
+  color: var(--tron-text);
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: 0.18s ease-out;
+}
+
+.mini-radio-btn:hover {
+  border-color: var(--tron-accent);
+  box-shadow: var(--shadow-neon-amber);
+  transform: translateY(-1px);
+}
+
+/* === Fake visualizer TRON === */
+
+.mini-radio-viz {
+  width: 20px;
+  height: 14px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2px;
+  margin-right: 4px;
+}
+
+.mini-radio-viz-bar {
+  flex: 1;
+  background: linear-gradient(to top, var(--tron-accent), var(--tron-border));
+  border-radius: 999px;
+  opacity: 0.5;
+  transform-origin: bottom;
+  transform: scaleY(0.3);
+}
+
+/* Animations différentes pour chaque barre */
+@keyframes miniEqualize1 {
+  0%   { transform: scaleY(0.3); }
+  50%  { transform: scaleY(1); }
+  100% { transform: scaleY(0.35); }
+}
+
+@keyframes miniEqualize2 {
+  0%   { transform: scaleY(0.2); }
+  40%  { transform: scaleY(0.9); }
+  100% { transform: scaleY(0.25); }
+}
+
+@keyframes miniEqualize3 {
+  0%   { transform: scaleY(0.4); }
+  60%  { transform: scaleY(1.1); }
+  100% { transform: scaleY(0.3); }
+}
+
+@keyframes miniEqualize4 {
+  0%   { transform: scaleY(0.25); }
+  50%  { transform: scaleY(0.8); }
+  100% { transform: scaleY(0.2); }
+}
+
+/* Quand la radio est en lecture, on anime les barres */
+.mini-radio.playing .mini-radio-viz-bar:nth-child(1) {
+  animation: miniEqualize1 0.7s infinite ease-in-out;
+}
+.mini-radio.playing .mini-radio-viz-bar:nth-child(2) {
+  animation: miniEqualize2 0.65s infinite ease-in-out;
+}
+.mini-radio.playing .mini-radio-viz-bar:nth-child(3) {
+  animation: miniEqualize3 0.8s infinite ease-in-out;
+}
+.mini-radio.playing .mini-radio-viz-bar:nth-child(4) {
+  animation: miniEqualize4 0.75s infinite ease-in-out;
+}
