@@ -636,8 +636,16 @@ function showIframe() {
 function playEntryAsOverlay(entry) {
   if (!entry || !entry.url) return;
 
-  showIframe();
   let url = entry.url;
+
+  // Si c'est un flux HLS/DASH brut (m3u8 / mpd) → utiliser le lecteur externe
+  if (isProbablyHls(url) || isProbablyDash(url)) {
+    fallbackToExternalPlayer(entry);
+    return;
+  }
+
+  // Sinon, vrai mode iFrame classique
+  showIframe();
 
   if (isYoutubeUrl(url)) {
     url = youtubeToEmbed(url);
@@ -648,6 +656,7 @@ function playEntryAsOverlay(entry) {
   updateNowPlaying(entry, 'IFRAME');
   setStatus('Overlay iFrame actif');
 }
+
 
 function fallbackToExternalPlayer(entry) {
   if (!entry || !entry.url) return;
