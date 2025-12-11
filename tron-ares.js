@@ -101,6 +101,52 @@ const subtitleTrackBtn = document.getElementById('subtitleTrackBtn');
 const audioTrackMenu = document.getElementById('audioTrackMenu');
 const subtitleTrackMenu = document.getElementById('subtitleTrackMenu');
 
+// --- MINI RADIO R.ALFA ---
+const radioPlayBtn = document.getElementById('radioPlayBtn');
+const radioLogoEl  = document.getElementById('radioLogo');
+const radioTitleEl = document.getElementById('radioTitle');
+const radioRdsEl   = document.getElementById('radioRds');
+
+const radioAudio = new Audio(
+  'https://n32a-eu.rcs.revma.com/amrbkhqtkm0uv?rj-ttl=5&rj-tok=AAABmqMYXjQAwgI6eJQzoCwBDw'
+);
+radioAudio.preload = 'none';
+
+let radioPlaying = false;
+
+// (Les infos sont déjà dans le HTML, mais au cas où tu veux les forcer en JS)
+if (radioTitleEl) radioTitleEl.textContent = 'R.Alfa';
+if (radioRdsEl)   radioRdsEl.textContent = 'Hit Music Only';
+
+if (radioPlayBtn) {
+  radioPlayBtn.addEventListener('click', () => {
+    if (!radioPlaying) {
+      // 1) STOPPER LA VIDÉO EN COURS
+      try {
+        videoEl.pause();
+      } catch (e) {}
+
+      // 2) LANCER LA RADIO
+      radioAudio
+        .play()
+        .then(() => {
+          radioPlaying = true;
+          radioPlayBtn.textContent = '⏸';
+          setStatus('Radio R.Alfa en lecture');
+        })
+        .catch((err) => {
+          console.error('Erreur lecture radio', err);
+          setStatus('Erreur radio');
+        });
+    } else {
+      // PAUSE RADIO
+      radioAudio.pause();
+      radioPlaying = false;
+      radioPlayBtn.textContent = '▶';
+      setStatus('Radio en pause');
+    }
+  });
+}
 
 // Masquer les contrôles pistes au démarrage
 if (npTracks) {
@@ -611,8 +657,22 @@ function fallbackToExternalPlayer(entry) {
 function playUrl(entry) {
   if (!entry || !entry.url) return;
 
+  // Si la radio joue, on la coupe quand on lance une chaîne
+  if (typeof radioAudio !== 'undefined') {
+    try {
+      radioAudio.pause();
+    } catch (e) {}
+    if (typeof radioPlaying !== 'undefined') {
+      radioPlaying = false;
+    }
+    if (radioPlayBtn) {
+      radioPlayBtn.textContent = '▶';
+    }
+  }
+
   currentEntry = entry;
   externalFallbackTried = false;
+
 
   const url = entry.url;
 
