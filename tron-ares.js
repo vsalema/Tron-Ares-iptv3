@@ -11,6 +11,7 @@ try {
 } catch {
   resumePositions = {};
 }
+
 // --- RECHERCHE GLOBALE ---
 let currentSearch = '';
 
@@ -26,15 +27,14 @@ function matchesSearch(entry) {
 // --------- DATA MODEL ---------
 const frChannels = [];    // Liste M3U FR
 const channels = [];      // Liste M3U principale
-
 const iframeItems = [];   // Overlays / iFrames
 
 let currentIndex = -1;
 let currentFrIndex = -1;
 let currentIframeIndex = -1;
+
 // FR par défaut
 let currentListType = 'fr'; // 'channels' | 'fr' | 'iframe'
-
 
 let overlayMode = false;
 
@@ -43,6 +43,7 @@ let dashInstance = null;
 
 let currentEntry = null;
 let externalFallbackTried = false;
+
 // --- ÉTAT PISTES (pour l'aspect "actif" des boutons NP) ---
 let activeAudioIndex = -1;
 let activeSubtitleIndex = -1;
@@ -102,19 +103,21 @@ const subtitleTrackBtn = document.getElementById('subtitleTrackBtn');
 const audioTrackMenu = document.getElementById('audioTrackMenu');
 const subtitleTrackMenu = document.getElementById('subtitleTrackMenu');
 
-// --- MINI RADIO R.ALFA ---
-// (à mettre juste après les const DOM refs, avant "Masquer les contrôles pistes")
+// --- RECHERCHE GLOBALE DOM ---
+const globalSearchInput = document.getElementById('globalSearchInput');
+const clearSearchBtn = document.getElementById('clearSearchBtn');
 
+// --- MINI RADIO R.ALFA + VISUALIZER ---
 const miniRadioEl  = document.getElementById('miniRadioPlayer');
 const radioPlayBtn = document.getElementById('radioPlayBtn');
 
 const radioAudio = new Audio(
   'https://n32a-eu.rcs.revma.com/amrbkhqtkm0uv?rj-ttl=5&rj-tok=AAABmqMYXjQAwgI6eJQzoCwBDw'
 );
+radioAudio.preload = 'none';
 
-
-
-// Est-ce que la vidéo était en lecture AVANT de lancer la radio ?
+let radioPlaying = false;
+// est-ce que la vidéo était en lecture AVANT de lancer la radio ?
 let videoWasPlayingBeforeRadio = false;
 
 if (miniRadioEl && radioPlayBtn && videoEl) {
@@ -173,9 +176,6 @@ if (miniRadioEl && radioPlayBtn && videoEl) {
   });
 }
 
-
-
-
 // Masquer les contrôles pistes au démarrage
 if (npTracks) {
   npTracks.classList.add('hidden');
@@ -228,6 +228,7 @@ function youtubeToEmbed(url) {
     return url;
   }
 }
+
 function isMovieContext() {
   // Ici tu peux raffiner plus tard (ex: group = "FILMS" etc.)
   return currentListType === 'channels';
@@ -392,8 +393,7 @@ function createChannelElement(entry, index, sourceType) {
 
   return li;
 }
-const globalSearchInput = document.getElementById('globalSearchInput');
-const clearSearchBtn = document.getElementById('clearSearchBtn');
+
 // =====================================================
 // NOW PLAYING BAR
 // =====================================================
@@ -575,9 +575,6 @@ function buildSubtitleTrackMenu() {
   });
 }
 
-
-
-
 function updateTrackControlsVisibility() {
   if (!npTracks) return;
 
@@ -587,30 +584,22 @@ function updateTrackControlsVisibility() {
     return;
   }
 
-  // On montre toujours le bloc et les deux boutons,
-  // même si on ne trouve pas encore de pistes.
   npTracks.classList.remove('hidden');
   audioGroup?.classList.remove('hidden');
   subtitleGroup?.classList.remove('hidden');
 }
 
-
 function refreshTrackMenus() {
-  // reconstruit les menus
   buildAudioTrackMenu();
   buildSubtitleTrackMenu();
   updateTrackControlsVisibility();
 
-  // recalcule l'index audio actif à partir de Hls
   if (hlsInstance && Array.isArray(hlsInstance.audioTracks) && hlsInstance.audioTracks.length) {
     activeAudioIndex = hlsInstance.audioTrack ?? -1;
   } else {
     activeAudioIndex = -1;
   }
 
-  // Pour les sous-titres, activeSubtitleIndex est mis à jour dans buildSubtitleTrackMenu()
-
-  // On active/désactive le style des boutons
   if (audioTrackBtn) {
     audioTrackBtn.classList.toggle('active', activeAudioIndex !== -1);
   }
@@ -618,7 +607,6 @@ function refreshTrackMenus() {
     subtitleTrackBtn.classList.toggle('active', activeSubtitleIndex !== -1);
   }
 }
-
 
 // =====================================================
 // PLAYER LOGIC
@@ -679,7 +667,6 @@ function playEntryAsOverlay(entry) {
   setStatus('Overlay iFrame actif');
 }
 
-
 function fallbackToExternalPlayer(entry) {
   if (!entry || !entry.url) return;
 
@@ -694,30 +681,25 @@ function fallbackToExternalPlayer(entry) {
 function playUrl(entry) {
   if (!entry || !entry.url) return;
 
-  
   // Si la radio joue, on la coupe quand on lance une chaîne TV
-if (typeof radioAudio !== 'undefined') {
-  try { radioAudio.pause(); } catch (e) {}
-  if (typeof radioPlaying !== 'undefined') {
-    radioPlaying = false;
+  if (typeof radioAudio !== 'undefined') {
+    try { radioAudio.pause(); } catch (e) {}
+    if (typeof radioPlaying !== 'undefined') {
+      radioPlaying = false;
+    }
+    if (typeof videoWasPlayingBeforeRadio !== 'undefined') {
+      videoWasPlayingBeforeRadio = false;
+    }
+    if (radioPlayBtn) {
+      radioPlayBtn.textContent = '▶';
+    }
+    if (miniRadioEl) {
+      miniRadioEl.classList.remove('playing');
+    }
   }
-  if (typeof videoWasPlayingBeforeRadio !== 'undefined') {
-    videoWasPlayingBeforeRadio = false;
-  }
-  if (radioPlayBtn) {
-    radioPlayBtn.textContent = '▶';
-  }
-  if (miniRadioEl) {
-    miniRadioEl.classList.remove('playing');
-  }
-}
 
-if (typeof miniRadioPlayer !== 'undefined' && miniRadioPlayer) {
-  miniRadioPlayer.classList.remove('playing');
-}
   currentEntry = entry;
   externalFallbackTried = false;
-
 
   const url = entry.url;
 
@@ -764,7 +746,6 @@ if (typeof miniRadioPlayer !== 'undefined' && miniRadioPlayer) {
     hlsInstance.attachMedia(videoEl);
     modeLabel = 'HLS';
 
-    // Brancher menus pistes
     hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
       refreshTrackMenus();
     });
@@ -820,8 +801,8 @@ if (typeof miniRadioPlayer !== 'undefined' && miniRadioPlayer) {
     } catch (e) {
       console.warn('Erreur reprise position', e);
     }
-   refreshTrackMenus();
-};
+    refreshTrackMenus();
+  };
 
   videoEl.play().catch(() => {});
   updateNowPlaying(entry, modeLabel);
@@ -1233,46 +1214,34 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     const tab = btn.dataset.tab;
     document.querySelectorAll('.list').forEach(l => l.classList.remove('active'));
 
-    if (tab === 'channels') currentListType = 'channels', channelListEl.classList.add('active');
-    if (tab === 'fr') currentListType = 'fr', channelFrListEl.classList.add('active');
-    if (tab === 'iframes') currentListType = 'iframe', iframeListEl.classList.add('active');
-    if (tab === 'favorites') favoriteListEl.classList.add('active');
+    if (tab === 'channels') {
+      currentListType = 'channels';
+      channelListEl.classList.add('active');
+    }
+    if (tab === 'fr') {
+      currentListType = 'fr';
+      channelFrListEl.classList.add('active');
+    }
+    if (tab === 'iframes') {
+      currentListType = 'iframe';
+      iframeListEl.classList.add('active');
+    }
+    if (tab === 'favorites') {
+      favoriteListEl.classList.add('active');
+    }
 
     scrollToActiveItem();
     updateTrackControlsVisibility();
   });
 });
+
 // Recherche globale (toutes listes)
-if (globalSearchInput) {
-  globalSearchInput.addEventListener('input', () => {
-    currentSearch = globalSearchInput.value.trim().toLowerCase();
-    renderLists();
-    scrollToActiveItem(); // pour garder l’élément actif centré si possible
-  });
-}
-
-
-if (clearSearchBtn) {
-  clearSearchBtn.addEventListener('click', (ev) => {
-    ev.stopPropagation();
-    currentSearch = '';
-    globalSearchInput.value = '';
-
-    const wrapper = globalSearchInput.closest('.search-wrapper');
-    if (wrapper) wrapper.classList.remove('has-text');
-
-    renderLists();
-    scrollToActiveItem();
-  });
-}
-// --- Recherche globale avec bouton effacer ---
 if (globalSearchInput) {
   const wrapper = globalSearchInput.closest('.search-wrapper');
 
   globalSearchInput.addEventListener('input', () => {
     currentSearch = globalSearchInput.value.trim().toLowerCase();
 
-    // Afficher/masquer le bouton ✖
     if (wrapper) {
       if (globalSearchInput.value.length > 0) wrapper.classList.add('has-text');
       else wrapper.classList.remove('has-text');
@@ -1466,7 +1435,6 @@ videoEl.addEventListener('timeupdate', () => {
   localStorage.setItem('tronAresResume', JSON.stringify(resumePositions));
 });
 
-
 audioTrackBtn?.addEventListener('click', (ev) => {
   ev.stopPropagation();
   if (!isMovieContext()) return;
@@ -1492,14 +1460,11 @@ document.addEventListener('click', () => {
   closeAllTrackMenus();
 });
 
-
-
 // =====================================================
 // DEMO DE BASE + OVERLAYS CUSTOM
 // =====================================================
 
 (function seedDemo() {
-  // Overlays custom
   const customOverlays = [
     { title: "CMTV", logo: "https://vsalema.github.io/StreamPilot-X-Studio-S/logos/cmtv.png", url: "//popcdn.day/player.php?stream=CMTVPT" },
     { title: "TVI",  logo: "https://vsalema.github.io/StreamPilot-X-Studio-S/logos/TVI.png", url: "https://vsalema.github.io/tvi2/" },
@@ -1547,9 +1512,6 @@ document.addEventListener('click', () => {
 // =====================================================
 // CHARGEMENT AUTOMATIQUE DES PLAYLISTS PRINCIPALES
 // =====================================================
-// =====================================================
-// CHARGEMENT AUTOMATIQUE DES PLAYLISTS PRINCIPALES
-// =====================================================
 
 (async function loadMainPlaylists() {
   // 1) Charger d'abord la playlist "films" dans channels
@@ -1560,7 +1522,6 @@ document.addEventListener('click', () => {
 
   // 3) Forcer la FR comme liste active + première chaîne FR lue
   if (frChannels.length > 0) {
-    // état interne
     currentListType = 'fr';
     currentFrIndex = 0;
 
@@ -1576,35 +1537,7 @@ document.addEventListener('click', () => {
     document.querySelectorAll('.list').forEach(l => l.classList.remove('active'));
     channelFrListEl.classList.add('active');
 
-    // re-render complet + lecture 1ère chaîne FR
     renderLists();
     playFrChannel(0);
   }
 })();
-
-
-// === MINI AUDIO PLAYER R.ALFA ===
-
-const miniRadio = document.getElementById("miniRadioPlayer");
-const miniAudio = document.getElementById("miniRadioAudio");
-const miniBtn = document.getElementById("miniRadioPlayBtn");
-
-if (miniRadio && miniAudio && miniBtn) {
-
-  miniBtn.addEventListener("click", () => {
-    if (miniAudio.paused) {
-      miniAudio.play();
-      miniBtn.textContent = "⏸";
-      miniRadio.classList.add("playing");
-    } else {
-      miniAudio.pause();
-      miniBtn.textContent = "▶";
-      miniRadio.classList.remove("playing");
-    }
-  });
-
-  miniAudio.addEventListener("ended", () => {
-    miniBtn.textContent = "▶";
-    miniRadio.classList.remove("playing");
-  });
-}
