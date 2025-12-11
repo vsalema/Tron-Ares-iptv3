@@ -111,9 +111,9 @@ const radioPlayBtn = document.getElementById('radioPlayBtn');
 const radioAudio = new Audio(
   'https://n32a-eu.rcs.revma.com/amrbkhqtkm0uv?rj-ttl=5&rj-tok=AAABmqMYXjQAwgI6eJQzoCwBDw'
 );
-radioAudio.preload = 'none';
 
-let radioPlaying = false;
+
+
 // Est-ce que la vidéo était en lecture AVANT de lancer la radio ?
 let videoWasPlayingBeforeRadio = false;
 
@@ -694,21 +694,23 @@ function fallbackToExternalPlayer(entry) {
 function playUrl(entry) {
   if (!entry || !entry.url) return;
 
-  // Si la radio joue, on la coupe quand on lance une chaîne
-  if (typeof radioAudio !== 'undefined') {
-    try {
-      radioAudio.pause();
-    } catch (e) {}
-    if (typeof radioPlaying !== 'undefined') {
-      radioPlaying = false;
-    }
-    if (radioPlayBtn) {
-      radioPlayBtn.textContent = '▶';
-    }
-    if (typeof wasVideoPlayingBeforeRadio !== 'undefined') {
-      wasVideoPlayingBeforeRadio = false;
-    }
+  
+  // Si la radio joue, on la coupe quand on lance une chaîne TV
+if (typeof radioAudio !== 'undefined') {
+  try { radioAudio.pause(); } catch (e) {}
+  if (typeof radioPlaying !== 'undefined') {
+    radioPlaying = false;
   }
+  if (typeof videoWasPlayingBeforeRadio !== 'undefined') {
+    videoWasPlayingBeforeRadio = false;
+  }
+  if (radioPlayBtn) {
+    radioPlayBtn.textContent = '▶';
+  }
+  if (miniRadioEl) {
+    miniRadioEl.classList.remove('playing');
+  }
+}
 
 if (typeof miniRadioPlayer !== 'undefined' && miniRadioPlayer) {
   miniRadioPlayer.classList.remove('playing');
