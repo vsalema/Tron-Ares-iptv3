@@ -44,7 +44,7 @@ let dashInstance = null;
 let currentEntry = null;
 let externalFallbackTried = false;
 
-// --- ÉTAT PISTES (pour l'aspect "actif" des boutons NP) ---
+// --- ÉTAT PISTES ---
 let activeAudioIndex = -1;
 let activeSubtitleIndex = -1;
 
@@ -94,7 +94,7 @@ const fxToggleBtn = document.getElementById('fxToggleBtn');
 const pipToggleBtn = document.getElementById('pipToggleBtn');
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 
-// --- Nouveaux contrôles pistes (dans now-playing) ---
+// --- Contrôles pistes (now-playing) ---
 const npTracks = document.getElementById('npTracks');
 const audioGroup = document.getElementById('audioGroup');
 const subtitleGroup = document.getElementById('subtitleGroup');
@@ -103,9 +103,7 @@ const subtitleTrackBtn = document.getElementById('subtitleTrackBtn');
 const audioTrackMenu = document.getElementById('audioTrackMenu');
 const subtitleTrackMenu = document.getElementById('subtitleTrackMenu');
 
-// --- MINI RADIO R.ALFA + CONTRÔLE LECTURE TV ---
-// (cohérent avec ton HTML miniRadioPlayer + visualizer)
-
+// --- MINI RADIO R.ALFA + FAKE VISUALIZER ---
 const miniRadioEl  = document.getElementById('miniRadioPlayer');
 const radioPlayBtn = document.getElementById('radioPlayBtn');
 
@@ -115,32 +113,33 @@ const radioAudio = new Audio(
 radioAudio.preload = 'none';
 
 let radioPlaying = false;
-// mémorise si la vidéo jouait avant de lancer la radio
+// Mémorise si la vidéo jouait avant qu'on lance la radio
 let videoWasPlayingBeforeRadio = false;
 
 if (miniRadioEl && radioPlayBtn && videoEl) {
   radioPlayBtn.addEventListener('click', () => {
-    // === LANCER LA RADIO ===
+
+    // === PLAY RADIO ===
     if (!radioPlaying) {
-      // vérifier si la vidéo était en lecture
+      // Est-ce que la vidéo TV jouait ?
       try {
         videoWasPlayingBeforeRadio =
           !videoEl.paused &&
           !videoEl.ended &&
           videoEl.currentTime > 0;
-      } catch {
+      } catch (e) {
         videoWasPlayingBeforeRadio = false;
       }
 
-      // mettre la vidéo en pause
-      try { videoEl.pause(); } catch {}
+      // On met la vidéo en pause
+      try { videoEl.pause(); } catch (e) {}
 
-      // lancer la radio
+      // On lance la radio
       radioAudio.play()
         .then(() => {
           radioPlaying = true;
           radioPlayBtn.textContent = '⏸';
-          miniRadioEl.classList.add('playing'); // active le visualizer
+          miniRadioEl.classList.add('playing'); // active le visualizer (CSS)
           setStatus('Radio R.Alfa en lecture');
         })
         .catch(err => {
@@ -148,15 +147,15 @@ if (miniRadioEl && radioPlayBtn && videoEl) {
           setStatus('Erreur radio');
         });
 
-    // === METTRE LA RADIO EN PAUSE ===
+    // === PAUSE RADIO ===
     } else {
       radioAudio.pause();
       radioPlaying = false;
       radioPlayBtn.textContent = '▶';
-      miniRadioEl.classList.remove('playing');
+      miniRadioEl.classList.remove('playing'); // coupe le visualizer
       setStatus('Radio en pause');
 
-      // si une chaîne TV jouait avant → on la relance
+      // Si une chaîne TV jouait avant la radio → on la relance
       if (videoWasPlayingBeforeRadio) {
         videoEl.play().catch(() => {});
       }
@@ -164,7 +163,7 @@ if (miniRadioEl && radioPlayBtn && videoEl) {
     }
   });
 
-  // si le flux radio se coupe / finit
+  // Si le flux radio se termine
   radioAudio.addEventListener('ended', () => {
     radioPlaying = false;
     radioPlayBtn.textContent = '▶';
@@ -227,7 +226,7 @@ function youtubeToEmbed(url) {
 }
 
 function isMovieContext() {
-  // Ici tu peux raffiner plus tard (ex: group = "FILMS" etc.)
+  // Films = liste principale (channels)
   return currentListType === 'channels';
 }
 
@@ -480,13 +479,11 @@ function buildSubtitleTrackMenu() {
   let tracks = [];
   let activeIndex = -1;
 
-  // 1) Sous-titres HLS
   if (hlsInstance && Array.isArray(hlsInstance.subtitleTracks) && hlsInstance.subtitleTracks.length > 0) {
     useHls = true;
     tracks = hlsInstance.subtitleTracks;
-    activeIndex = hlsInstance.subtitleTrack; // -1 = off
+    activeIndex = hlsInstance.subtitleTrack;
   } else {
-    // 2) Fallback : textTracks natifs du <video>
     const tt = Array.from(videoEl.textTracks || []).filter(t =>
       t.kind === 'subtitles' || t.kind === 'captions'
     );
@@ -496,7 +493,6 @@ function buildSubtitleTrackMenu() {
     }
   }
 
-  // Mémorise pour refreshTrackMenus()
   activeSubtitleIndex = activeIndex;
 
   const header = document.createElement('div');
@@ -504,7 +500,6 @@ function buildSubtitleTrackMenu() {
   header.textContent = 'Sous-titres';
   subtitleTrackMenu.appendChild(header);
 
-  // Si aucune piste trouvée → on affiche juste "Aucun disponible"
   if (!tracks.length) {
     const empty = document.createElement('div');
     empty.className = 'np-track-item';
@@ -513,7 +508,6 @@ function buildSubtitleTrackMenu() {
     return;
   }
 
-  // --- Option "Aucun" ---
   const offItem = document.createElement('div');
   offItem.className = 'np-track-item';
   if (activeIndex === -1) offItem.classList.add('active');
@@ -539,7 +533,6 @@ function buildSubtitleTrackMenu() {
   });
   subtitleTrackMenu.appendChild(offItem);
 
-  // --- Liste des pistes ---
   tracks.forEach((t, idx) => {
     const item = document.createElement('div');
     item.className = 'np-track-item';
@@ -578,7 +571,6 @@ function buildSubtitleTrackMenu() {
 function updateTrackControlsVisibility() {
   if (!npTracks) return;
 
-  // On n’affiche les boutons que pour la liste principale (films)
   if (!isMovieContext()) {
     npTracks.classList.add('hidden');
     return;
@@ -590,21 +582,16 @@ function updateTrackControlsVisibility() {
 }
 
 function refreshTrackMenus() {
-  // reconstruit les menus
   buildAudioTrackMenu();
   buildSubtitleTrackMenu();
   updateTrackControlsVisibility();
 
-  // recalcule l'index audio actif à partir de Hls
   if (hlsInstance && Array.isArray(hlsInstance.audioTracks) && hlsInstance.audioTracks.length) {
     activeAudioIndex = hlsInstance.audioTrack ?? -1;
   } else {
     activeAudioIndex = -1;
   }
 
-  // Pour les sous-titres, activeSubtitleIndex est mis à jour dans buildSubtitleTrackMenu()
-
-  // On active/désactive le style des boutons
   if (audioTrackBtn) {
     audioTrackBtn.classList.toggle('active', activeAudioIndex !== -1);
   }
@@ -653,13 +640,12 @@ function playEntryAsOverlay(entry) {
 
   let url = entry.url;
 
-  // Si c'est un flux HLS/DASH brut (m3u8 / mpd) → utiliser le lecteur externe
+  // Si c'est du HLS/DASH brut → lecteur externe
   if (isProbablyHls(url) || isProbablyDash(url)) {
     fallbackToExternalPlayer(entry);
     return;
   }
 
-  // Sinon, vrai mode iFrame classique
   showIframe();
 
   if (isYoutubeUrl(url)) {
@@ -687,12 +673,20 @@ function playUrl(entry) {
   if (!entry || !entry.url) return;
 
   // Si la radio joue, on la coupe quand on lance une chaîne TV
-  if (radioPlaying) {
-    try { radioAudio.pause(); } catch {}
-    radioPlaying = false;
-    videoWasPlayingBeforeRadio = false;
-    if (radioPlayBtn) radioPlayBtn.textContent = '▶';
-    if (miniRadioEl) miniRadioEl.classList.remove('playing');
+  if (typeof radioAudio !== 'undefined') {
+    try { radioAudio.pause(); } catch (e) {}
+    if (typeof radioPlaying !== 'undefined') {
+      radioPlaying = false;
+    }
+    if (typeof videoWasPlayingBeforeRadio !== 'undefined') {
+      videoWasPlayingBeforeRadio = false;
+    }
+    if (radioPlayBtn) {
+      radioPlayBtn.textContent = '▶';
+    }
+    if (miniRadioEl) {
+      miniRadioEl.classList.remove('playing');
+    }
   }
 
   currentEntry = entry;
@@ -743,7 +737,6 @@ function playUrl(entry) {
     hlsInstance.attachMedia(videoEl);
     modeLabel = 'HLS';
 
-    // Brancher menus pistes
     hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
       refreshTrackMenus();
     });
@@ -873,7 +866,7 @@ function playPrev() {
   }
 }
 
-// --- SCROLL AUTO SUR LA LISTE ACTIVE (NE SCROLLE QUE LA LISTE, PAS LA PAGE) ---
+// --- SCROLL AUTO SUR LA LISTE ACTIVE ---
 function scrollToActiveItem() {
   let listEl = null;
   if (currentListType === 'channels') listEl = channelListEl;
@@ -1222,7 +1215,16 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-// --- Recherche globale avec bouton effacer ---
+// Recherche globale simple (surcharge par la version avec bouton clear)
+if (globalSearchInput) {
+  globalSearchInput.addEventListener('input', () => {
+    currentSearch = globalSearchInput.value.trim().toLowerCase();
+    renderLists();
+    scrollToActiveItem();
+  });
+}
+
+// Recherche globale + bouton effacer
 if (globalSearchInput) {
   const wrapper = globalSearchInput.closest('.search-wrapper');
 
@@ -1261,7 +1263,7 @@ document.querySelectorAll('.loader-section .collapsible-label').forEach(label =>
   });
 });
 
-// Fermer (close) par défaut la section playlist (aucune ouverte)
+// Fermer par défaut la section playlist
 document.querySelector('.loader-section[data-section="playlist"]')?.classList.add('close');
 
 // Sidebar show/hide
@@ -1501,18 +1503,17 @@ document.addEventListener('click', () => {
 // =====================================================
 
 (async function loadMainPlaylists() {
-  // 1) Charger d'abord la playlist "films" dans channels
+  // 1) Playlist films
   await loadFromUrl("https://vsalema.github.io/tvpt4/css/playlist_par_genre.m3u");
 
-  // 2) Charger ensuite la playlist FR
+  // 2) Playlist FR
   await loadFrM3u("https://vsalema.github.io/tvpt4/css/playlist-tvf-r.m3u");
 
-  // 3) Forcer la FR comme liste active + première chaîne FR lue
+  // 3) Forcer FR en liste active + jouer la première chaîne FR
   if (frChannels.length > 0) {
     currentListType = 'fr';
     currentFrIndex = 0;
 
-    // onglets : activer "fr"
     document.querySelectorAll('.tab-btn').forEach(b => {
       b.classList.remove('active');
       if (b.dataset.tab === 'fr') {
@@ -1520,7 +1521,6 @@ document.addEventListener('click', () => {
       }
     });
 
-    // listes : activer la liste FR
     document.querySelectorAll('.list').forEach(l => l.classList.remove('active'));
     channelFrListEl.classList.add('active');
 
