@@ -114,6 +114,7 @@ const radioAudio = new Audio(
 radioAudio.preload = 'none';
 
 let radioPlaying = false;
+let wasVideoPlayingBeforeRadio = false;
 
 // (Les infos sont déjà dans le HTML, mais au cas où tu veux les forcer en JS)
 if (radioTitleEl) radioTitleEl.textContent = 'R.Alfa';
@@ -121,37 +122,58 @@ if (radioRdsEl)   radioRdsEl.textContent = 'Hit Music Only';
 
 if (radioPlayBtn) {
   radioPlayBtn.addEventListener('click', () => {
+    // CASE 1 : on lance la radio
     if (!radioPlaying) {
-      // 1) STOPPER LA VIDÉO EN COURS
+
+      // Est-ce que la vidéo était en lecture ?
+      try {
+        wasVideoPlayingBeforeRadio =
+          !videoEl.paused &&
+          !videoEl.ended &&
+          videoEl.currentTime > 0;
+      } catch (e) {
+        wasVideoPlayingBeforeRadio = false;
+      }
+
+      // On met la vidéo en pause
       try {
         videoEl.pause();
       } catch (e) {}
 
-      // 2) LANCER LA RADIO
+      // On lance la radio
       radioAudio
         .play()
         .then(() => {
           radioPlaying = true;
           radioPlayBtn.textContent = '⏸';
-          // ➜ activer le visualizer
-          if (miniRadioPlayer) miniRadioPlayer.classList.add('playing');
           setStatus('Radio R.Alfa en lecture');
         })
         .catch((err) => {
           console.error('Erreur lecture radio', err);
           setStatus('Erreur radio');
         });
+
+    // CASE 2 : on met la radio en pause
     } else {
-      // PAUSE RADIO
       radioAudio.pause();
       radioPlaying = false;
       radioPlayBtn.textContent = '▶';
-      // ➜ couper le visualizer
-      if (miniRadioPlayer) miniRadioPlayer.classList.remove('playing');
       setStatus('Radio en pause');
+
+      // Si une chaîne TV était en train de jouer avant la radio, on la relance
+      if (wasVideoPlayingBeforeRadio && currentEntry && videoEl) {
+        try {
+          videoEl.play();
+        } catch (e) {
+          console.warn('Impossible de relancer la vidéo après la radio', e);
+        }
+      }
+      wasVideoPlayingBeforeRadio = false;
     }
   });
 }
+
+
 
 
 // Masquer les contrôles pistes au démarrage
@@ -683,7 +705,11 @@ function playUrl(entry) {
     if (radioPlayBtn) {
       radioPlayBtn.textContent = '▶';
     }
+    if (typeof wasVideoPlayingBeforeRadio !== 'undefined') {
+      wasVideoPlayingBeforeRadio = false;
+    }
   }
+
 if (typeof miniRadioPlayer !== 'undefined' && miniRadioPlayer) {
   miniRadioPlayer.classList.remove('playing');
 }
