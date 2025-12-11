@@ -107,7 +107,7 @@ const radioPlayBtn = document.getElementById('radioPlayBtn');
 const radioLogoEl  = document.getElementById('radioLogo');
 const radioTitleEl = document.getElementById('radioTitle');
 const radioRdsEl   = document.getElementById('radioRds');
-
+const miniRadioPlayer = document.getElementById('miniRadioPlayer');
 const radioAudio = new Audio(
   'https://n32a-eu.rcs.revma.com/amrbkhqtkm0uv?rj-ttl=5&rj-tok=AAABmqMYXjQAwgI6eJQzoCwBDw'
 );
@@ -133,6 +133,8 @@ if (radioPlayBtn) {
         .then(() => {
           radioPlaying = true;
           radioPlayBtn.textContent = '⏸';
+          // ➜ activer le visualizer
+          if (miniRadioPlayer) miniRadioPlayer.classList.add('playing');
           setStatus('Radio R.Alfa en lecture');
         })
         .catch((err) => {
@@ -144,10 +146,13 @@ if (radioPlayBtn) {
       radioAudio.pause();
       radioPlaying = false;
       radioPlayBtn.textContent = '▶';
+      // ➜ couper le visualizer
+      if (miniRadioPlayer) miniRadioPlayer.classList.remove('playing');
       setStatus('Radio en pause');
     }
   });
 }
+
 
 // Masquer les contrôles pistes au démarrage
 if (npTracks) {
