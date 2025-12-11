@@ -37,6 +37,7 @@ let currentIframeIndex = -1;
 let currentListType = 'fr'; // 'channels' | 'fr' | 'iframe'
 
 let overlayMode = false;
+
 let hlsInstance = null;
 let dashInstance = null;
 
@@ -102,8 +103,9 @@ const subtitleTrackBtn = document.getElementById('subtitleTrackBtn');
 const audioTrackMenu = document.getElementById('audioTrackMenu');
 const subtitleTrackMenu = document.getElementById('subtitleTrackMenu');
 
-// --- MINI RADIO R.ALFA + FAKE VISUALIZER ---
-// se base sur le HTML : #miniRadioPlayer + #radioPlayBtn
+// --- MINI RADIO R.ALFA + CONTRÔLE LECTURE TV ---
+// (cohérent avec ton HTML miniRadioPlayer + visualizer)
+
 const miniRadioEl  = document.getElementById('miniRadioPlayer');
 const radioPlayBtn = document.getElementById('radioPlayBtn');
 
@@ -113,32 +115,32 @@ const radioAudio = new Audio(
 radioAudio.preload = 'none';
 
 let radioPlaying = false;
-// mémorise si une chaîne TV était en lecture avant de lancer la radio
+// mémorise si la vidéo jouait avant de lancer la radio
 let videoWasPlayingBeforeRadio = false;
 
 if (miniRadioEl && radioPlayBtn && videoEl) {
   radioPlayBtn.addEventListener('click', () => {
-    // === CAS 1 : on LANCE la radio ===
+    // === LANCER LA RADIO ===
     if (!radioPlaying) {
-      // La vidéo était-elle en lecture ?
+      // vérifier si la vidéo était en lecture
       try {
         videoWasPlayingBeforeRadio =
           !videoEl.paused &&
           !videoEl.ended &&
           videoEl.currentTime > 0;
-      } catch (e) {
+      } catch {
         videoWasPlayingBeforeRadio = false;
       }
 
-      // On met la vidéo en pause
-      try { videoEl.pause(); } catch (e) {}
+      // mettre la vidéo en pause
+      try { videoEl.pause(); } catch {}
 
-      // On lance la radio
+      // lancer la radio
       radioAudio.play()
         .then(() => {
           radioPlaying = true;
           radioPlayBtn.textContent = '⏸';
-          miniRadioEl.classList.add('playing'); // active le visualizer (CSS)
+          miniRadioEl.classList.add('playing'); // active le visualizer
           setStatus('Radio R.Alfa en lecture');
         })
         .catch(err => {
@@ -146,15 +148,15 @@ if (miniRadioEl && radioPlayBtn && videoEl) {
           setStatus('Erreur radio');
         });
 
-    // === CAS 2 : on MET LA RADIO EN PAUSE ===
+    // === METTRE LA RADIO EN PAUSE ===
     } else {
       radioAudio.pause();
       radioPlaying = false;
       radioPlayBtn.textContent = '▶';
-      miniRadioEl.classList.remove('playing'); // coupe le visualizer
+      miniRadioEl.classList.remove('playing');
       setStatus('Radio en pause');
 
-      // Si une chaîne TV était en lecture avant, on la relance
+      // si une chaîne TV jouait avant → on la relance
       if (videoWasPlayingBeforeRadio) {
         videoEl.play().catch(() => {});
       }
@@ -162,7 +164,7 @@ if (miniRadioEl && radioPlayBtn && videoEl) {
     }
   });
 
-  // Si le flux radio se coupe / finit
+  // si le flux radio se coupe / finit
   radioAudio.addEventListener('ended', () => {
     radioPlaying = false;
     radioPlayBtn.textContent = '▶';
@@ -582,7 +584,6 @@ function updateTrackControlsVisibility() {
     return;
   }
 
-  // Toujours visible dans le contexte "films"
   npTracks.classList.remove('hidden');
   audioGroup?.classList.remove('hidden');
   subtitleGroup?.classList.remove('hidden');
@@ -652,13 +653,13 @@ function playEntryAsOverlay(entry) {
 
   let url = entry.url;
 
-  // Si c'est un flux HLS/DASH brut → lecteur externe
+  // Si c'est un flux HLS/DASH brut (m3u8 / mpd) → utiliser le lecteur externe
   if (isProbablyHls(url) || isProbablyDash(url)) {
     fallbackToExternalPlayer(entry);
     return;
   }
 
-  // Sinon, vrai iFrame
+  // Sinon, vrai mode iFrame classique
   showIframe();
 
   if (isYoutubeUrl(url)) {
@@ -686,20 +687,12 @@ function playUrl(entry) {
   if (!entry || !entry.url) return;
 
   // Si la radio joue, on la coupe quand on lance une chaîne TV
-  if (typeof radioAudio !== 'undefined') {
-    try { radioAudio.pause(); } catch (e) {}
-    if (typeof radioPlaying !== 'undefined') {
-      radioPlaying = false;
-    }
-    if (typeof videoWasPlayingBeforeRadio !== 'undefined') {
-      videoWasPlayingBeforeRadio = false;
-    }
-    if (radioPlayBtn) {
-      radioPlayBtn.textContent = '▶';
-    }
-    if (miniRadioEl) {
-      miniRadioEl.classList.remove('playing');
-    }
+  if (radioPlaying) {
+    try { radioAudio.pause(); } catch {}
+    radioPlaying = false;
+    videoWasPlayingBeforeRadio = false;
+    if (radioPlayBtn) radioPlayBtn.textContent = '▶';
+    if (miniRadioEl) miniRadioEl.classList.remove('playing');
   }
 
   currentEntry = entry;
@@ -1219,21 +1212,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     const tab = btn.dataset.tab;
     document.querySelectorAll('.list').forEach(l => l.classList.remove('active'));
 
-    if (tab === 'channels') {
-      currentListType = 'channels';
-      channelListEl.classList.add('active');
-    }
-    if (tab === 'fr') {
-      currentListType = 'fr';
-      channelFrListEl.classList.add('active');
-    }
-    if (tab === 'iframes') {
-      currentListType = 'iframe';
-      iframeListEl.classList.add('active');
-    }
-    if (tab === 'favorites') {
-      favoriteListEl.classList.add('active');
-    }
+    if (tab === 'channels') currentListType = 'channels', channelListEl.classList.add('active');
+    if (tab === 'fr') currentListType = 'fr', channelFrListEl.classList.add('active');
+    if (tab === 'iframes') currentListType = 'iframe', iframeListEl.classList.add('active');
+    if (tab === 'favorites') favoriteListEl.classList.add('active');
 
     scrollToActiveItem();
     updateTrackControlsVisibility();
@@ -1247,7 +1229,6 @@ if (globalSearchInput) {
   globalSearchInput.addEventListener('input', () => {
     currentSearch = globalSearchInput.value.trim().toLowerCase();
 
-    // Afficher/masquer le bouton ✖
     if (wrapper) {
       if (globalSearchInput.value.length > 0) wrapper.classList.add('has-text');
       else wrapper.classList.remove('has-text');
@@ -1471,7 +1452,6 @@ document.addEventListener('click', () => {
 // =====================================================
 
 (function seedDemo() {
-  // Overlays custom
   const customOverlays = [
     { title: "CMTV", logo: "https://vsalema.github.io/StreamPilot-X-Studio-S/logos/cmtv.png", url: "//popcdn.day/player.php?stream=CMTVPT" },
     { title: "TVI",  logo: "https://vsalema.github.io/StreamPilot-X-Studio-S/logos/TVI.png", url: "https://vsalema.github.io/tvi2/" },
@@ -1529,11 +1509,10 @@ document.addEventListener('click', () => {
 
   // 3) Forcer la FR comme liste active + première chaîne FR lue
   if (frChannels.length > 0) {
-    // état interne
     currentListType = 'fr';
     currentFrIndex = 0;
 
-    // onglets : activer "fr", désactiver les autres
+    // onglets : activer "fr"
     document.querySelectorAll('.tab-btn').forEach(b => {
       b.classList.remove('active');
       if (b.dataset.tab === 'fr') {
@@ -1545,7 +1524,6 @@ document.addEventListener('click', () => {
     document.querySelectorAll('.list').forEach(l => l.classList.remove('active'));
     channelFrListEl.classList.add('active');
 
-    // re-render complet + lecture 1ère chaîne FR
     renderLists();
     playFrChannel(0);
   }
