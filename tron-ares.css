@@ -1537,12 +1537,7 @@ body.theme-redblue .np-logo img {
    ============================================== */
 
 
-  opacity: 0.65;
-  animation: tronCircuitFlow 6s linear infinite;
-  pointer-events: none;
-  mix-blend-mode: screen;
-  filter: blur(0.4px);
-}
+  
 
 /* Animation “défilement d'énergie” */
 @keyframes tronCircuitFlow {
