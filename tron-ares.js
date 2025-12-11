@@ -103,14 +103,72 @@ const audioTrackMenu = document.getElementById('audioTrackMenu');
 const subtitleTrackMenu = document.getElementById('subtitleTrackMenu');
 
 // --- MINI RADIO R.ALFA ---
-const radioPlayBtn = document.getElementById('radioPlayBtn');
-const radioLogoEl  = document.getElementById('radioLogo');
-const radioTitleEl = document.getElementById('radioTitle');
-const radioRdsEl   = document.getElementById('radioRds');
-const miniRadioPlayer = document.getElementById('miniRadioPlayer');
+
+// (à mettre après les const videoEl / sidebar / etc.)
+
+const miniRadioEl   = document.getElementById('miniRadioPlayer');
+const radioPlayBtn  = document.getElementById('radioPlayBtn');
+
 const radioAudio = new Audio(
   'https://n32a-eu.rcs.revma.com/amrbkhqtkm0uv?rj-ttl=5&rj-tok=AAABmqMYXjQAwgI6eJQzoCwBDw'
 );
+radioAudio.preload = 'none';
+
+let radioPlaying = false;
+// Mémorise si la vidéo était en lecture quand on a lancé la radio
+let videoWasPlayingBeforeRadio = false;
+
+if (radioPlayBtn && miniRadioEl) {
+  radioPlayBtn.addEventListener('click', () => {
+    // PLAY radio
+    if (!radioPlaying) {
+      // 1) Vérifier si la vidéo jouait
+      if (videoEl) {
+        videoWasPlayingBeforeRadio = !videoEl.paused && !videoEl.ended;
+        try { videoEl.pause(); } catch (e) {}
+      } else {
+        videoWasPlayingBeforeRadio = false;
+      }
+
+      // 2) Lancer la radio
+      radioAudio
+        .play()
+        .then(() => {
+          radioPlaying = true;
+          radioPlayBtn.textContent = '⏸';
+          miniRadioEl.classList.add('playing');  // active le visualizer
+          setStatus('Radio R.Alfa en lecture');
+        })
+        .catch((err) => {
+          console.error('Erreur lecture radio', err);
+          setStatus('Erreur radio');
+        });
+
+    // PAUSE radio
+    } else {
+      radioAudio.pause();
+      radioPlaying = false;
+      radioPlayBtn.textContent = '▶';
+      miniRadioEl.classList.remove('playing');  // coupe le visualizer
+      setStatus('Radio en pause');
+
+      // 3) Si une vidéo était en lecture avant, on la reprend
+      if (videoWasPlayingBeforeRadio && videoEl) {
+        videoEl.play().catch(() => {});
+      }
+      videoWasPlayingBeforeRadio = false;
+    }
+  });
+
+  // Quand la radio se termine (stream coupé, etc.)
+  radioAudio.addEventListener('ended', () => {
+    radioPlaying = false;
+    radioPlayBtn.textContent = '▶';
+    miniRadioEl.classList.remove('playing');
+    videoWasPlayingBeforeRadio = false;
+  });
+}
+
 radioAudio.preload = 'none';
 
 let radioPlaying = false;
