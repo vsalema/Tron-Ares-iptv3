@@ -1445,3 +1445,28 @@ document.addEventListener('click', () => {
   await loadFromUrl("https://vsalema.github.io/tvpt4/css/playlist_par_genre.m3u");
   await loadFrM3u("https://vsalema.github.io/tvpt4/css/playlist-tvf-r.m3u");
 })();
+// === MINI AUDIO PLAYER R.ALFA ===
+
+const miniRadio = document.getElementById("miniRadioPlayer");
+const miniAudio = document.getElementById("miniRadioAudio");
+const miniBtn = document.getElementById("miniRadioPlayBtn");
+
+if (miniRadio && miniAudio && miniBtn) {
+
+  miniBtn.addEventListener("click", () => {
+    if (miniAudio.paused) {
+      miniAudio.play();
+      miniBtn.textContent = "⏸";
+      miniRadio.classList.add("playing");
+    } else {
+      miniAudio.pause();
+      miniBtn.textContent = "▶";
+      miniRadio.classList.remove("playing");
+    }
+  });
+
+  miniAudio.addEventListener("ended", () => {
+    miniBtn.textContent = "▶";
+    miniRadio.classList.remove("playing");
+  });
+}
