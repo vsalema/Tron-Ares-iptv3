@@ -24,8 +24,9 @@ function matchesSearch(entry) {
 }
 
 // --------- DATA MODEL ---------
-const channels = [];      // Liste M3U principale
 const frChannels = [];    // Liste M3U FR
+const channels = [];      // Liste M3U principale
+
 const iframeItems = [];   // Overlays / iFrames
 
 let currentIndex = -1;
