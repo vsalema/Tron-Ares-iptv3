@@ -103,11 +103,10 @@ const audioTrackMenu = document.getElementById('audioTrackMenu');
 const subtitleTrackMenu = document.getElementById('subtitleTrackMenu');
 
 // --- MINI RADIO R.ALFA ---
+// (à mettre juste après les const DOM refs, avant "Masquer les contrôles pistes")
 
-// (à mettre après les const videoEl / sidebar / etc.)
-
-const miniRadioEl   = document.getElementById('miniRadioPlayer');
-const radioPlayBtn  = document.getElementById('radioPlayBtn');
+const miniRadioEl  = document.getElementById('miniRadioPlayer');
+const radioPlayBtn = document.getElementById('radioPlayBtn');
 
 const radioAudio = new Audio(
   'https://n32a-eu.rcs.revma.com/amrbkhqtkm0uv?rj-ttl=5&rj-tok=AAABmqMYXjQAwgI6eJQzoCwBDw'
@@ -115,119 +114,62 @@ const radioAudio = new Audio(
 radioAudio.preload = 'none';
 
 let radioPlaying = false;
-// Mémorise si la vidéo était en lecture quand on a lancé la radio
+// Est-ce que la vidéo était en lecture AVANT de lancer la radio ?
 let videoWasPlayingBeforeRadio = false;
 
-if (radioPlayBtn && miniRadioEl) {
+if (miniRadioEl && radioPlayBtn && videoEl) {
   radioPlayBtn.addEventListener('click', () => {
-    // PLAY radio
+
+    // === CAS 1 : on LANCE la radio ===
     if (!radioPlaying) {
-      // 1) Vérifier si la vidéo jouait
-      if (videoEl) {
-        videoWasPlayingBeforeRadio = !videoEl.paused && !videoEl.ended;
-        try { videoEl.pause(); } catch (e) {}
-      } else {
+      // On regarde si la vidéo était en lecture
+      try {
+        videoWasPlayingBeforeRadio =
+          !videoEl.paused &&
+          !videoEl.ended &&
+          videoEl.currentTime > 0;
+      } catch (e) {
         videoWasPlayingBeforeRadio = false;
       }
 
-      // 2) Lancer la radio
-      radioAudio
-        .play()
+      // On met la vidéo en pause
+      try { videoEl.pause(); } catch (e) {}
+
+      // On lance la radio
+      radioAudio.play()
         .then(() => {
           radioPlaying = true;
           radioPlayBtn.textContent = '⏸';
-          miniRadioEl.classList.add('playing');  // active le visualizer
+          miniRadioEl.classList.add('playing'); // active le visualizer
           setStatus('Radio R.Alfa en lecture');
         })
-        .catch((err) => {
+        .catch(err => {
           console.error('Erreur lecture radio', err);
           setStatus('Erreur radio');
         });
 
-    // PAUSE radio
+    // === CAS 2 : on MET LA RADIO EN PAUSE ===
     } else {
       radioAudio.pause();
       radioPlaying = false;
       radioPlayBtn.textContent = '▶';
-      miniRadioEl.classList.remove('playing');  // coupe le visualizer
+      miniRadioEl.classList.remove('playing'); // stop visualizer
       setStatus('Radio en pause');
 
-      // 3) Si une vidéo était en lecture avant, on la reprend
-      if (videoWasPlayingBeforeRadio && videoEl) {
+      // Si une chaîne TV était en train de jouer avant la radio, on la relance
+      if (videoWasPlayingBeforeRadio) {
         videoEl.play().catch(() => {});
       }
       videoWasPlayingBeforeRadio = false;
     }
   });
 
-  // Quand la radio se termine (stream coupé, etc.)
+  // Si le flux radio se coupe / finit
   radioAudio.addEventListener('ended', () => {
     radioPlaying = false;
     radioPlayBtn.textContent = '▶';
     miniRadioEl.classList.remove('playing');
     videoWasPlayingBeforeRadio = false;
-  });
-}
-
-radioAudio.preload = 'none';
-
-let radioPlaying = false;
-let wasVideoPlayingBeforeRadio = false;
-
-// (Les infos sont déjà dans le HTML, mais au cas où tu veux les forcer en JS)
-if (radioTitleEl) radioTitleEl.textContent = 'R.Alfa';
-if (radioRdsEl)   radioRdsEl.textContent = 'Hit Music Only';
-
-if (radioPlayBtn) {
-  radioPlayBtn.addEventListener('click', () => {
-    // CASE 1 : on lance la radio
-    if (!radioPlaying) {
-
-      // Est-ce que la vidéo était en lecture ?
-      try {
-        wasVideoPlayingBeforeRadio =
-          !videoEl.paused &&
-          !videoEl.ended &&
-          videoEl.currentTime > 0;
-      } catch (e) {
-        wasVideoPlayingBeforeRadio = false;
-      }
-
-      // On met la vidéo en pause
-      try {
-        videoEl.pause();
-      } catch (e) {}
-
-      // On lance la radio
-      radioAudio
-        .play()
-        .then(() => {
-          radioPlaying = true;
-          radioPlayBtn.textContent = '⏸';
-          setStatus('Radio R.Alfa en lecture');
-        })
-        .catch((err) => {
-          console.error('Erreur lecture radio', err);
-          setStatus('Erreur radio');
-        });
-
-    // CASE 2 : on met la radio en pause
-    } else {
-      radioAudio.pause();
-      radioPlaying = false;
-      radioPlayBtn.textContent = '▶';
-      setStatus('Radio en pause');
-
-      // Si une chaîne TV était en train de jouer avant la radio, on la relance
-      if (wasVideoPlayingBeforeRadio && currentEntry && videoEl) {
-        try {
-          videoEl.play();
-        } catch (e) {
-          console.warn('Impossible de relancer la vidéo après la radio', e);
-        }
-      }
-      wasVideoPlayingBeforeRadio = false;
-    }
   });
 }
 
