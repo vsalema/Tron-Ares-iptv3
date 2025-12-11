@@ -1505,36 +1505,11 @@ body.theme-redblue .np-logo img {
   scrollbar-color: var(--tron-border) transparent;
 }
 
-/* Chrome / Edge / Safari */
-.list::-webkit-scrollbar {
-  width: 8px;
-  background: transparent;
-}
 
 
 
-.list::-webkit-scrollbar-thumb {
-  background: linear-gradient(
-    to bottom,
-    rgba(0, 229, 255, 0.8),
-    rgba(255, 145, 0, 0.75)
-  );
-  border-radius: 10px;
-  border: 1px solid rgba(0, 229, 255, 0.35);
-  box-shadow: 0 0 8px rgba(0, 229, 255, 0.6);
-  transition: 0.25s ease;
-}
 
-.list::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 145, 0, 0.9),
-    rgba(0, 229, 255, 0.85)
-  );
-  box-shadow:
-    0 0 10px rgba(255, 145, 0, 0.9),
-    0 0 14px rgba(0, 229, 255, 0.8);
-}
+
 
 /* Scrollbar plus fine sur mobile */
 @media (max-width: 700px) {
@@ -1546,34 +1521,10 @@ body.theme-redblue .np-logo img {
    TRACK TRON PULSÉ ORANGE (effet énergétique)
    ============================================ */
 
-.list::-webkit-scrollbar-track {
-  background: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.35) 0%,
-    rgba(20,8,0,0.55) 100%
-  );
-  border-radius: 10px;
-  border: 1px solid rgba(255, 145, 0, 0.25);
-  position: relative;
-  overflow: hidden;
-}
+
 
 /* Effet pulsé interne (pseudo-lumière orange) */
-.list::-webkit-scrollbar-track:before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle at center,
-    rgba(255, 145, 0, 0.75) 0%,
-    rgba(255, 145, 0, 0.15) 60%,
-    transparent 100%
-  );
-  opacity: 0.25;
-  animation: tronPulseTrack 2.6s ease-in-out infinite;
-  filter: blur(4px);
-  pointer-events: none;
-}
+
 
 /* Animation pulse */
 @keyframes tronPulseTrack {
@@ -1585,34 +1536,7 @@ body.theme-redblue .np-logo img {
    TRACK TRON STYLE “CIRCUIT IMPRIMÉ”
    ============================================== */
 
-.list::-webkit-scrollbar-track {
-  background: #02040a;
-  border-radius: 10px;
-  border: 1px solid rgba(0, 229, 255, 0.25);
-  position: relative;
-  overflow: hidden;
-}
 
-/* Circuit animé interne */
-.list::-webkit-scrollbar-track::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-      /* lignes horizontales cyan */
-      repeating-linear-gradient(
-        to bottom,
-        rgba(0, 229, 255, 0.28) 0px,
-        rgba(0, 229, 255, 0.28) 1px,
-        transparent 2px,
-        transparent 6px
-      ),
-      /* lueur orange centrale */
-      radial-gradient(
-        ellipse at center,
-        rgba(255, 145, 0, 0.28),
-        transparent 70%
-      );
   opacity: 0.65;
   animation: tronCircuitFlow 6s linear infinite;
   pointer-events: none;
@@ -1624,4 +1548,78 @@ body.theme-redblue .np-logo img {
 @keyframes tronCircuitFlow {
   0%   { transform: translateY(0); }
   100% { transform: translateY(-12px); }
+}
+/* ============================================
+   SCROLLBAR TRON "CIRCUIT IMPRIMÉ" POUR LES LISTES
+   ============================================ */
+
+/* Largeur du scrollbar pour les listes */
+.list::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Piste = circuit imprimé TRON */
+.list::-webkit-scrollbar-track {
+  background:
+    /* trame "circuit" verticale */
+    linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 6px,
+      rgba(0, 229, 255, 0.25) 7px,
+      transparent 8px
+    ),
+    /* trame "circuit" horizontale */
+    linear-gradient(
+      to right,
+      transparent 0,
+      transparent 6px,
+      rgba(255, 145, 0, 0.25) 7px,
+      transparent 8px
+    ),
+    /* fond sombre de base */
+    radial-gradient(circle at 30% 0%, #06111f 0%, #02040a 55%, #000 100%);
+  background-size:
+    100% 10px,  /* pas vertical */
+    10px 100%,  /* pas horizontal */
+    100% 100%;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  box-shadow:
+    0 0 6px rgba(0, 229, 255, 0.4),
+    inset 0 0 8px rgba(0, 0, 0, 0.9);
+}
+
+/* Curseur (thumb) TRON néon */
+.list::-webkit-scrollbar-thumb {
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0, 229, 255, 0.95),
+      rgba(0, 180, 220, 0.95)
+    );
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.9);
+  box-shadow:
+    0 0 8px rgba(0, 229, 255, 0.9),
+    0 0 14px rgba(0, 229, 255, 0.75);
+}
+
+/* Hover du thumb = encore plus néon */
+.list::-webkit-scrollbar-thumb:hover {
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(255, 145, 0, 0.98),
+      rgba(255, 200, 120, 0.98)
+    );
+  box-shadow:
+    0 0 10px rgba(255, 145, 0, 0.95),
+    0 0 18px rgba(255, 145, 0, 0.8);
+}
+
+/* Firefox : couleur générale du scrollbar */
+.list {
+  scrollbar-width: thin;
+  scrollbar-color: #00e5ff #050b18;
 }
