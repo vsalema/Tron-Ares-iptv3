@@ -31,7 +31,9 @@ const iframeItems = [];   // Overlays / iFrames
 let currentIndex = -1;
 let currentFrIndex = -1;
 let currentIframeIndex = -1;
-let currentListType = null; // 'channels' | 'fr' | 'iframe'
+// FR par défaut
+let currentListType = 'fr'; // 'channels' | 'fr' | 'iframe'
+
 
 let overlayMode = false;
 
