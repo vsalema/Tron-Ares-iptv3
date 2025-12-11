@@ -1618,7 +1618,7 @@ body.theme-redblue .np-logo img {
   scrollbar-width: thin;
   scrollbar-color: #00e5ff #050b18;
 }
-/* === MINI RADIO PLAYER R.Alfa + VISUALIZER === */
+/* === MINI RADIO PLAYER R.ALFA + VISUALIZER TRON === */
 
 .mini-radio {
   display: flex;
@@ -1685,11 +1685,11 @@ body.theme-redblue .np-logo img {
   transform: translateY(-1px);
 }
 
-/* === Fake visualizer TRON === */
+/* Fake visualizer TRON */
 
 .mini-radio-viz {
-  width: 20px;
-  height: 14px;
+  width: 22px;
+  height: 16px;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -1701,12 +1701,13 @@ body.theme-redblue .np-logo img {
   flex: 1;
   background: linear-gradient(to top, var(--tron-accent), var(--tron-border));
   border-radius: 999px;
-  opacity: 0.5;
+  opacity: 0.7;
   transform-origin: bottom;
-  transform: scaleY(0.3);
+  transform: scaleY(0.3); /* visible même à l'arrêt */
 }
 
-/* Animations différentes pour chaque barre */
+/* Animations différentes pour chaque barre quand .mini-radio a la classe .playing */
+
 @keyframes miniEqualize1 {
   0%   { transform: scaleY(0.3); }
   50%  { transform: scaleY(1); }
@@ -1731,7 +1732,6 @@ body.theme-redblue .np-logo img {
   100% { transform: scaleY(0.2); }
 }
 
-/* Quand la radio est en lecture, on anime les barres */
 .mini-radio.playing .mini-radio-viz-bar:nth-child(1) {
   animation: miniEqualize1 0.7s infinite ease-in-out;
 }
